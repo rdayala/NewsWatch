@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Caching">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="pref_offline_cache"
+            android:title="Offline Caching" />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:dependency="pref_offline_cache"
+            android:entries="@array/offlineCacheArray"
+            android:entryValues="@array/offlineCacheValues"
+            android:key="offlineCacheDays"
+            android:summary="Select the number of days to cache feed data"
+            android:title="Offline Cache Days" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Refresh">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="pref_automatic_refresh"
+            android:title="Automatic Refresh" />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:dependency="pref_automatic_refresh"
+            android:entries="@array/refreshInterval"
+            android:entryValues="@array/refreshIntervalValues"
+            android:key="automaticFeedRefresh"
+            android:summary="Refresh interval to sync Data"
+            android:title="Automatic Refresh Interval" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

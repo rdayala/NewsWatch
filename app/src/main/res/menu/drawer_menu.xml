@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/group1">
+        <item
+            android:id="@+id/favorites"
+            android:icon="@android:drawable/ic_input_get"
+            android:title="Bookmarks" />
+    </group>
+
+    <group android:id="@+id/group2">
+        <item
+            android:id="@+id/diplomacy"
+            android:icon="@drawable/ic_action_diplomacy"
+            android:title="Diplomacy" />
+    </group>
+
+    <group android:id="@+id/group3">
+        <item
+            android:id="@+id/pib"
+            android:icon="@drawable/ic_pib_articles"
+            android:title="PIB News" />
+    </group>
+
+    <group android:id="@+id/group4">
+        <item
+            android:id="@+id/pib_features"
+            android:icon="@drawable/ic_pib_news"
+            android:title="PIB Articles" />
+    </group>
+
+    <group android:id="@+id/group5">
+        <item
+            android:id="@+id/news_analysis"
+            android:icon="@drawable/ic_action_news_analysis"
+            android:title="News Analysis" />
+    </group>
+
+    <group android:id="@+id/group6">
+        <item
+            android:id="@+id/news_watch_settings"
+            android:icon="@drawable/ic_action_settings"
+            android:title="Settings" />
+    </group>
+
+    <group android:id="@+id/group7">
+
+        <item
+            android:id="@+id/news_watch_about"
+            android:icon="@drawable/ic_action_about"
+            android:title="About" />
+    </group>
+
+    <group android:id="@+id/group8">
+
+        <item
+            android:id="@+id/close"
+            android:icon="@android:drawable/ic_menu_close_clear_cancel"
+            android:title="Close this App" />
+    </group>
+
+</menu>

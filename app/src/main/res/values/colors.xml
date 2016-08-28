@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--<color name="colorPrimary">#607D8B</color>-->
+    <!--<color name="colorPrimaryDark">#455A64</color>-->
+    <!--<color name="colorAccent">#FF4081</color>-->
+
+    <color name="colorPrimary">#CC0000</color>
+    <color name="colorPrimaryDark">#990000</color>
+    <color name="colorAccent">#333333</color>
+    <!--<color name="tabBackgroundColor">#0A0A0A</color>-->
+    <color name="tabBackgroundColor">#333333</color>
+    <color name="tabTitleColor">#E87400</color>
+    <color name="navBackgroundColor">#333333</color>
+
+    <color name="orange">#FF9900</color>
+    <color name="green">#009900</color>
+    <color name="blue">#000099</color>
+    <color name="dusk_alpha_50">#ffffff</color>
+
+</resources>

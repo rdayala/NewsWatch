@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/fav_card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/card_margin"
+        android:elevation="3dp"
+        card_view:cardCornerRadius="@dimen/card_album_radius">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/fav_item_news_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/news_title_padding"
+                android:paddingRight="@dimen/news_title_padding"
+                android:paddingTop="@dimen/news_title_padding"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-light"
+                android:text="Monsoon rains 6% above average in past week: IMD"
+                android:textSize="@dimen/news_title" />
+
+            <TextView
+                android:id="@+id/fav_item_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fav_item_news_title"
+                android:paddingTop="@dimen/news_item_pubdesc_padding"
+                android:paddingLeft="@dimen/news_title_padding"
+                android:paddingRight="@dimen/news_title_padding"
+                android:fontFamily="sans-serif-light"
+                android:text="Monsoon rains 6% above average in past week: IMD"
+                android:textSize="@dimen/news_description_size" />
+
+            <com.cunoraz.tagview.TagView
+                android:id="@+id/fav_item_tag_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fav_item_description"
+                android:layout_margin="10dp" />
+
+            <TextView
+                android:id="@+id/fav_item_pubdate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fav_item_tag_group"
+                android:paddingTop="@dimen/news_item_pubdate_padding"
+                android:paddingLeft="@dimen/news_title_padding"
+                android:paddingRight="@dimen/news_title_padding"
+                android:text="Thu, 04 Aug 2016 14:41:23 GMT"
+                android:textColor="@color/colorPrimary"
+                android:enabled="false"
+                android:textSize="@dimen/news_pubdate_size" />
+
+
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+</LinearLayout>
