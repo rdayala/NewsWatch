@@ -11,9 +11,29 @@
         android:layout_height="match_parent"
         tools:context="com.rdayala.example.newswatch.fragments.TopNewsFragment">
 
+        <ProgressBar
+            android:id="@+id/currentaffairs_progressbar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
         <include
             android:id="@+id/top_news_rv"
             layout="@layout/news_content_rv" />
+
+        <TextView
+            android:id="@+id/currentaffairs_connection_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
+            android:text="You are offline!!"
+            android:gravity="center_vertical"
+            android:textColor="@color/tabTitleColor"
+            android:padding="10dp"
+            android:textSize="18sp"
+            android:minHeight="?attr/actionBarSize"
+            android:layout_alignParentBottom="true"/>
 
     </RelativeLayout>
 

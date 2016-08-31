@@ -56,4 +56,5 @@
             android:theme="@style/NavigationDrawerStyle" />
 
     </android.support.v4.widget.DrawerLayout>
+
 </LinearLayout>

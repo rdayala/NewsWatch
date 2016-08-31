@@ -27,11 +27,10 @@ import com.rdayala.example.newswatch.ContentActivity;
 import com.rdayala.example.newswatch.R;
 import com.rdayala.example.newswatch.WebViewActivity;
 import com.rdayala.example.newswatch.model.FavoriteNewsItem;
-import com.rdayala.example.newswatch.model.NewsItemTag;
+
+import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmList;
-import io.realm.RealmResults;
 
 /**
  * Created by rdayala on 8/22/2016.
@@ -41,12 +40,11 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
 
     private Context mContext;
     private LayoutInflater mInflater;
-    private Realm mRealm;
-    private RealmList<FavoriteNewsItem> mData;
-    private RealmList<FavoriteNewsItem> mFavoritesData;
+    private List<FavoriteNewsItem> mData;
+    private List<FavoriteNewsItem> mFavoritesData;
 
 
-    public FavoritesRealmAdapter(Context context, Realm realm, RealmList<FavoriteNewsItem> data) {
+    public FavoritesRealmAdapter(Context context, List<FavoriteNewsItem> data) {
 
         this.mContext = context;
         this.mData = data;
@@ -74,7 +72,7 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
         return mData.size();
     }
 
-    public void setFilter(RealmList<FavoriteNewsItem> feedItems) {
+    public void setFilter(List<FavoriteNewsItem> feedItems) {
         mData = feedItems;
         notifyDataSetChanged();
     }
@@ -84,7 +82,7 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
 
         TextView title, pubDate, description;
         TagView tagGroup;
-        protected FavoriteNewsItem favoriteNewsItem;
+        FavoriteNewsItem favoriteNewsItem;
 
         public MyFavoritesViewHolder(View itemView) {
             super(itemView);
@@ -98,10 +96,10 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
                 @Override
                 public void onTagClick(Tag tag, int position) {
 
-                    RealmList<FavoriteNewsItem> filteredList =
-                            ((ContentActivity)mContext).favoritesTagFilter(mFavoritesData, favoriteNewsItem.getmTags().get(position).getmTag());
+                    List<FavoriteNewsItem> filteredList =
+                            ((ContentActivity)mContext).favoritesTagFilter(mFavoritesData, tag.text);
 
-                    SpannableString s = new SpannableString("Favorites : " + favoriteNewsItem.getmTags().get(position).getmTag());
+                    SpannableString s = new SpannableString("Favorites : " + tag.text);
                     s.setSpan(new TypefaceSpan("fonts/Knowledge-Bold.ttf"), 0, s.length(),
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     ((ContentActivity)mContext).getSupportActionBar().setTitle(s);
@@ -166,21 +164,22 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
             if (item.getTitle().equals("Remove Bookmark")) {
 
                 // save rssFeed data member to Realm DB
-                final FavoriteNewsItem favItem = new FavoriteNewsItem();
-                favItem.setMtitle(favoriteNewsItem.getMtitle());
-                favItem.setMlink(favoriteNewsItem.getMlink());
-                favItem.setMdescription(favoriteNewsItem.getMdescription());
-                favItem.setMpubDate(favoriteNewsItem.getMpubDate());
+                final FavoriteNewsItem favItem = favoriteNewsItem;
+                favItem.setAddedFavorite(false);
                 favItem.setmTags(null);
 
                 Realm realm = Realm.getDefaultInstance();
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        RealmResults<FavoriteNewsItem> result = realm.where(FavoriteNewsItem.class).equalTo("mlink", favItem.getMlink()).findAll();
-                        result.deleteAllFromRealm();
-                    }
-                });
+                realm.beginTransaction();
+                realm.copyToRealmOrUpdate(favItem);
+                realm.commitTransaction();
+
+//                realm.executeTransaction(new Realm.Transaction() {
+//                    @Override
+//                    public void execute(Realm realm) {
+//                        RealmResults<FavoriteNewsItem> result = realm.where(FavoriteNewsItem.class).equalTo("mlink", favItem.getMlink()).findAll();
+//                        result.deleteAllFromRealm();
+//                    }
+//                });
                 realm.close();
 
                 mData.remove(getAdapterPosition());
@@ -189,14 +188,7 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
             }
             else if (item.getTitle().equals("Tags")) {
 
-                RealmList<NewsItemTag> oldTags = favoriteNewsItem.getmTags();
-                StringBuilder oldItemTags = new StringBuilder();
-                for(NewsItemTag itemTag : oldTags) {
-                    oldItemTags.append(itemTag.getmTag());
-                    oldItemTags.append(" ");
-                }
-
-                final String oldTagsString = oldItemTags.toString().trim();
+                final String oldTagsString = favoriteNewsItem.getmTags().trim();
 
                 AlertDialog.Builder alertDialog;
                 final EditText et_Tags;
@@ -208,7 +200,7 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
 
                 alertDialog.setTitle("Tags");
                 et_Tags = (EditText)view.findViewById(R.id.et_tags);
-                et_Tags.setText(oldItemTags.toString().trim());
+                et_Tags.setText(oldTagsString);
 
                 alertDialog.setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
@@ -218,21 +210,8 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
 
                         if(!oldTagsString.equals(newTagsString)) {
 
-                            String[] newTagsArray = TextUtils.split(newTagsString, " +");
-
-                            RealmList<NewsItemTag> newTagsList = new RealmList<NewsItemTag>();
-                            for(String newTag : newTagsArray) {
-                                NewsItemTag newsItemTag = new NewsItemTag();
-                                newsItemTag.setmTag(newTag);
-                                newTagsList.add(newsItemTag);
-                            }
-
-                            FavoriteNewsItem favItem = new FavoriteNewsItem();
-                            favItem.setMtitle(favoriteNewsItem.getMtitle());
-                            favItem.setMlink(favoriteNewsItem.getMlink());
-                            favItem.setMdescription(favoriteNewsItem.getMdescription());
-                            favItem.setMpubDate(favoriteNewsItem.getMpubDate());
-                            favItem.setmTags(newTagsList);
+                            FavoriteNewsItem favItem = favoriteNewsItem;
+                            favItem.setmTags(newTagsString);
 
                             Realm realm = Realm.getDefaultInstance();
                             realm.beginTransaction();
@@ -257,14 +236,7 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
             this.pubDate.setText(favoriteItem.getMpubDate());
             this.description.setText(favoriteItem.getMdescription());
 
-            RealmList<NewsItemTag> oldTags = favoriteItem.getmTags();
-            StringBuilder oldItemTags = new StringBuilder();
-            for(NewsItemTag itemTag : oldTags) {
-                oldItemTags.append(itemTag.getmTag());
-                oldItemTags.append(" ");
-            }
-
-            final String oldTagsString = oldItemTags.toString().trim();
+            final String oldTagsString = favoriteItem.getmTags();
             String[] tagsArray = TextUtils.split(oldTagsString, " +");
             this.tagGroup.removeAll();
             this.tagGroup.addTags(tagsArray);

@@ -3,8 +3,15 @@ package com.rdayala.example.newswatch.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.view.ViewGroup;
 
-import java.util.ArrayList;
+import com.rdayala.example.newswatch.fragments.BusinessFragment;
+import com.rdayala.example.newswatch.fragments.EditorialsFragment;
+import com.rdayala.example.newswatch.fragments.NationFragment;
+import com.rdayala.example.newswatch.fragments.ScienceTechFragment;
+import com.rdayala.example.newswatch.fragments.SportsFragment;
+import com.rdayala.example.newswatch.fragments.TopNewsFragment;
+import com.rdayala.example.newswatch.fragments.WorldFragment;
 
 /**
  * Created by rdayala on 8/18/2016.
@@ -12,38 +19,45 @@ import java.util.ArrayList;
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    ArrayList<Fragment> fr_list;
+    private Fragment mCurrentFragment;
 
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
-    public ViewPagerAdapter(FragmentManager fm, ArrayList<Fragment> fr_list) {
-        super(fm);
-        this.fr_list = fr_list;
+    @Override
+    public Fragment getItem(int position) {
+
+        switch (position) {
+            case 0:
+                return new TopNewsFragment();
+            case 1:
+                return new NationFragment();
+            case 2:
+                return new WorldFragment();
+            case 3:
+                return new BusinessFragment();
+            case 4:
+                return new EditorialsFragment();
+            case 5:
+                return new ScienceTechFragment();
+            case 6:
+                return new SportsFragment();
+            default:
+                return null;
+        }
+    }
+
+    public Fragment getCurrentFragment() {
+        return mCurrentFragment;
     }
 
     @Override
-    public Fragment getItem(int position) {
-        return  fr_list.get(position);
-//        switch (position) {
-//            case 0:
-//                return new TopNewsFragment();
-//            case 1:
-//                return new NationFragment();
-//            case 2:
-//                return new WorldFragment();
-//            case 3:
-//                return new BusinessFragment();
-//            case 4:
-//                return new EditorialsFragment();
-//            case 5:
-//                return new ScienceTechFragment();
-//            case 6:
-//                return new SportsFragment();
-//            default:
-//                return null;
-//        }
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        if (getCurrentFragment() != object) {
+            mCurrentFragment = ((Fragment) object);
+        }
+        super.setPrimaryItem(container, position, object);
     }
 
     @Override

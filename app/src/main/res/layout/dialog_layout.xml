@@ -13,5 +13,6 @@
         android:layout_width="match_parent"
         android:textCursorDrawable="@drawable/cursor"
         android:textColor="@color/colorAccent"
+        android:inputType="textCapWords|textCapSentences"
         android:layout_height="wrap_content" />
 </LinearLayout>

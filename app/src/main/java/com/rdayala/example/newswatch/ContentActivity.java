@@ -22,8 +22,6 @@ import com.rdayala.example.newswatch.fragments.NewsAnalysisFragment;
 import com.rdayala.example.newswatch.fragments.PIBFeaturesFragment;
 import com.rdayala.example.newswatch.fragments.PIBNewsFragment;
 import com.rdayala.example.newswatch.model.FavoriteNewsItem;
-import com.rdayala.example.newswatch.model.FeedItem;
-import com.rdayala.example.newswatch.model.NewsItemTag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +37,8 @@ public class ContentActivity extends AppCompatActivity implements SearchView.OnQ
     int position;
     FragmentTransaction ft;
     Fragment selectedFragment;
-    List<FeedItem> mData = null;
-    RealmList<FavoriteNewsItem> mRealmData = null;
+    List<FavoriteNewsItem> mData = null;
+    List<FavoriteNewsItem> mRealmData = null;
     NewsItemAdapter mNewsAdapter = null;
     FavoritesRealmAdapter mFavAdapter = null;
 
@@ -137,12 +135,12 @@ public class ContentActivity extends AppCompatActivity implements SearchView.OnQ
         ft.commit();
     }
 
-    public void setData(List<FeedItem> feedData) {
+    public void setData(List<FavoriteNewsItem> feedData) {
         this.mData = feedData;
         this.mRealmData = null;
     }
 
-    public void setRealmData(RealmList<FavoriteNewsItem> favData) {
+    public void setRealmData(List<FavoriteNewsItem> favData) {
         this.mRealmData = favData;
         this.mData = null;
     }
@@ -194,11 +192,11 @@ public class ContentActivity extends AppCompatActivity implements SearchView.OnQ
     @Override
     public boolean onQueryTextChange(String newText) {
         if(mData != null) {
-            final List<FeedItem> filteredModelList = filter(mData, newText);
+            final List<FavoriteNewsItem> filteredModelList = filter(mData, newText);
             mNewsAdapter.setFilter(filteredModelList);
         }
         else if(mRealmData != null) {
-            final RealmList<FavoriteNewsItem> filteredFavorites = favoritesFilter(mRealmData, newText);
+            final List<FavoriteNewsItem> filteredFavorites = favoritesFilter(mRealmData, newText);
             mFavAdapter.setFilter(filteredFavorites);
         }
         return true;
@@ -209,21 +207,17 @@ public class ContentActivity extends AppCompatActivity implements SearchView.OnQ
         return false;
     }
 
-    public RealmList<FavoriteNewsItem> favoritesFilter(RealmList<FavoriteNewsItem> favorites, String query) {
+    public List<FavoriteNewsItem> favoritesFilter(List<FavoriteNewsItem> favorites, String query) {
         query = query.toLowerCase();
 
-        RealmList<FavoriteNewsItem> filteredModeList = new RealmList<>();
+        List<FavoriteNewsItem> filteredModeList = new RealmList<>();
 
         for(FavoriteNewsItem favItem : favorites) {
             final String title = favItem.getMtitle().toLowerCase();
             final String description = favItem.getMdescription().toLowerCase();
-            final RealmList<NewsItemTag> tags = favItem.getmTags();
-            List<String> strTags = new ArrayList<>();
-            for(NewsItemTag itemTag : tags) {
-                strTags.add(itemTag.getmTag().toLowerCase());
-            }
+            final String tagsStr = favItem.getmTags();
 
-            if(title.contains(query) || description.contains(query) || strTags.contains(query)) {
+            if(title.contains(query) || description.contains(query) || tagsStr.contains(query)) {
                 filteredModeList.add(favItem);
             }
         }
@@ -231,21 +225,15 @@ public class ContentActivity extends AppCompatActivity implements SearchView.OnQ
         return filteredModeList;
     }
 
-    public RealmList<FavoriteNewsItem> favoritesTagFilter(RealmList<FavoriteNewsItem> favorites, String query) {
+    public List<FavoriteNewsItem> favoritesTagFilter(List<FavoriteNewsItem> favorites, String query) {
         query = query.toLowerCase();
 
-        RealmList<FavoriteNewsItem> filteredModeList = new RealmList<>();
+        List<FavoriteNewsItem> filteredModeList = new ArrayList<>();
 
         for(FavoriteNewsItem favItem : favorites) {
-            final String title = favItem.getMtitle().toLowerCase();
-            final String description = favItem.getMdescription().toLowerCase();
-            final RealmList<NewsItemTag> tags = favItem.getmTags();
-            List<String> strTags = new ArrayList<>();
-            for(NewsItemTag itemTag : tags) {
-                strTags.add(itemTag.getmTag().toLowerCase());
-            }
+            final String tagsStr = favItem.getmTags().toLowerCase();
 
-            if(strTags.contains(query)) {
+            if(tagsStr.contains(query)) {
                 filteredModeList.add(favItem);
             }
         }
@@ -253,11 +241,11 @@ public class ContentActivity extends AppCompatActivity implements SearchView.OnQ
         return filteredModeList;
     }
 
-    private List<FeedItem> filter(List<FeedItem> feeds, String query) {
+    private List<FavoriteNewsItem> filter(List<FavoriteNewsItem> feeds, String query) {
         query = query.toLowerCase();
 
-        final List<FeedItem> filteredModelList = new ArrayList<>();
-        for (FeedItem item : feeds) {
+        final List<FavoriteNewsItem> filteredModelList = new ArrayList<>();
+        for (FavoriteNewsItem item : feeds) {
             final String title = item.getMtitle().toLowerCase();
             final String description = item.getMdescription().toLowerCase();
             if (title.contains(query) || description.contains(query)) {

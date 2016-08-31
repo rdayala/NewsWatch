@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -21,14 +21,11 @@ import android.widget.Toast;
 import com.rdayala.example.newswatch.R;
 import com.rdayala.example.newswatch.WebViewActivity;
 import com.rdayala.example.newswatch.model.FavoriteNewsItem;
-import com.rdayala.example.newswatch.model.FeedItem;
-import com.rdayala.example.newswatch.model.NewsItemTag;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 
 /**
  * Created by rdayala on 8/4/2016.
@@ -36,11 +33,11 @@ import io.realm.RealmList;
 public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyViewHolder> {
 
     private Context mContext;
-    private List<FeedItem> mData;
+    private List<FavoriteNewsItem> mData;
     private LayoutInflater mInflater;
-    private String mFeedTag;
+    private String mDefaultTag;
 
-    public NewsItemAdapter(Context context, List<FeedItem> data) {
+    public NewsItemAdapter(Context context, List<FavoriteNewsItem> data) {
 
         this.mContext = context;
         this.mData = data;
@@ -58,37 +55,43 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         Log.d("NewsItemAdapter : ", "onBindViewHolder " + position);
-        FeedItem item = mData.get(position);
+        FavoriteNewsItem item = mData.get(position);
         holder.setData(item, position);
     }
 
     @Override
     public int getItemCount() {
-        return mData.size();
+        if(mData != null) {
+            return mData.size();
+        } else {
+            return 0;
+        }
     }
 
-    public void setFilter(List<FeedItem> feedItems) {
+    public void setDefaultTag(String defaultTag) {
+        mDefaultTag = defaultTag;
+    }
+
+    public String getmDefaultTag() {
+        return mDefaultTag;
+    }
+
+    public void setFilter(List<FavoriteNewsItem> feedItems) {
         mData = new ArrayList<>();
         mData.addAll(feedItems);
         notifyDataSetChanged();
     }
 
-    public String getFeedTag() {
-        return mFeedTag;
-    }
-
-    public void setFeedTag(String feedTag) {
-        this.mFeedTag = feedTag;
-    }
-
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener,
             MenuItem.OnMenuItemClickListener {
 
+        CardView cardView;
         TextView title, pubDate, description;
-        protected FeedItem rssFeed;
+        protected FavoriteNewsItem rssFeed;
 
         public MyViewHolder(View itemView) {
             super(itemView);
+            cardView = (CardView)itemView.findViewById(R.id.card_view);
             title = (TextView)itemView.findViewById(R.id.news_title);
             pubDate = (TextView)itemView.findViewById(R.id.pubdate);
             description = (TextView)itemView.findViewById(R.id.description);
@@ -110,11 +113,8 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
                 public void onClick(View v) {
 
                     Intent webIntent = new Intent(v.getContext(), WebViewActivity.class);
-
                     webIntent.putExtra("title", rssFeed.getMtitle().toString());
-
                     webIntent.putExtra("url", rssFeed.getMlink().toString());
-
                     v.getContext().startActivity(webIntent);
                 }
             });
@@ -141,20 +141,13 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
             if(item.getTitle().equals("Bookmark")) {
                 // TO DO
                 // save rssFeed data member to Realm DB
-
-                RealmList<NewsItemTag> tags = new RealmList<>();
-                tags.add(new NewsItemTag(mFeedTag));
-
-                FavoriteNewsItem favItem = new FavoriteNewsItem();
-                favItem.setMtitle(rssFeed.getMtitle());
-                favItem.setMlink(rssFeed.getMlink());
-                favItem.setMdescription(rssFeed.getMdescription());
-                favItem.setMpubDate(rssFeed.getMpubDate());
-                favItem.setmTags(tags);
-
+                rssFeed.setAddedFavorite(true);
+                if(rssFeed.getmTags() == null) {
+                    rssFeed.setmTags(mDefaultTag);
+                }
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
-                FavoriteNewsItem favs = realm.copyToRealmOrUpdate(favItem);
+                FavoriteNewsItem favs = realm.copyToRealmOrUpdate(rssFeed);
                 realm.commitTransaction();
                 realm.close();
 
@@ -163,24 +156,11 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
             }
             else if (item.getTitle().equals("Tag & Save")) {
 
-                final FavoriteNewsItem favoriteNewsItem = new FavoriteNewsItem();
-
-                favoriteNewsItem.setMtitle(rssFeed.getMtitle());
-                favoriteNewsItem.setMlink(rssFeed.getMlink());
-                favoriteNewsItem.setMdescription(rssFeed.getMdescription());
-                favoriteNewsItem.setMpubDate(rssFeed.getMpubDate());
-                favoriteNewsItem.setmTags(null);
-
-                RealmList<NewsItemTag> oldTags = favoriteNewsItem.getmTags();
-                StringBuilder oldItemTags = new StringBuilder();
-                if(oldTags != null ) {
-                    for (NewsItemTag itemTag : oldTags) {
-                        oldItemTags.append(itemTag.getmTag());
-                        oldItemTags.append(" ");
-                    }
+                if(rssFeed.getmTags() == null ) {
+                    rssFeed.setmTags(mDefaultTag);
                 }
 
-                final String oldTagsString = oldItemTags.toString().trim();
+                final String oldTagsString = rssFeed.getmTags().toString().trim();
 
                 AlertDialog.Builder alertDialog;
                 final EditText et_Tags;
@@ -192,7 +172,7 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
 
                 alertDialog.setTitle("Tags");
                 et_Tags = (EditText)view.findViewById(R.id.et_tags);
-                et_Tags.setText(oldItemTags.toString().trim());
+                et_Tags.setText(oldTagsString);
 
                 alertDialog.setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
@@ -202,25 +182,12 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
 
                         if(!oldTagsString.equals(newTagsString)) {
 
-                            String[] newTagsArray = TextUtils.split(newTagsString, " +");
-
-                            RealmList<NewsItemTag> newTagsList = new RealmList<NewsItemTag>();
-                            for(String newTag : newTagsArray) {
-                                NewsItemTag newsItemTag = new NewsItemTag();
-                                newsItemTag.setmTag(newTag);
-                                newTagsList.add(newsItemTag);
-                            }
-
-                            FavoriteNewsItem favItem = new FavoriteNewsItem();
-                            favItem.setMtitle(favoriteNewsItem.getMtitle());
-                            favItem.setMlink(favoriteNewsItem.getMlink());
-                            favItem.setMdescription(favoriteNewsItem.getMdescription());
-                            favItem.setMpubDate(favoriteNewsItem.getMpubDate());
-                            favItem.setmTags(newTagsList);
+                            rssFeed.setmTags(newTagsString);
+                            rssFeed.setAddedFavorite(true);
 
                             Realm realm = Realm.getDefaultInstance();
                             realm.beginTransaction();
-                            realm.copyToRealmOrUpdate(favItem);
+                            realm.copyToRealmOrUpdate(rssFeed);
                             realm.commitTransaction();
                             realm.close();
 
@@ -233,17 +200,21 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
                 alertDialog.show();
             }
 
+            cardView.setCardBackgroundColor(Color.parseColor("#e7fad8"));
             return true;
         }
 
-        public void setData(FeedItem feedItem, int position) {
+        public void setData(FavoriteNewsItem feedItem, int position) {
             this.title.setText(feedItem.getMtitle());
             this.pubDate.setText(feedItem.getMpubDate());
             this.description.setText(feedItem.getMdescription());
             this.rssFeed = feedItem;
-
+            if(feedItem.isAddedFavorite()) {
+                cardView.setCardBackgroundColor(Color.parseColor("#e7fad8"));
+            }
+            else {
+                cardView.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
+            }
         }
-
     }
-
 }

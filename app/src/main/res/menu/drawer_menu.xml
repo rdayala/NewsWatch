@@ -35,6 +35,13 @@
             android:title="News Analysis" />
     </group>
 
+    <group android:id="@+id/group9">
+        <item
+            android:id="@+id/check_epw"
+            android:icon="@drawable/ic_open_in_browser"
+            android:title="E &#038; P Weekly" />
+    </group>
+
     <group android:id="@+id/group6">
         <item
             android:id="@+id/news_watch_settings"
@@ -50,12 +57,12 @@
             android:title="About" />
     </group>
 
-    <group android:id="@+id/group8">
+    <!--<group android:id="@+id/group8">-->
 
-        <item
-            android:id="@+id/close"
-            android:icon="@android:drawable/ic_menu_close_clear_cancel"
-            android:title="Close this App" />
-    </group>
+        <!--<item-->
+            <!--android:id="@+id/close"-->
+            <!--android:icon="@android:drawable/ic_menu_close_clear_cancel"-->
+            <!--android:title="Close this App" />-->
+    <!--</group>-->
 
 </menu>

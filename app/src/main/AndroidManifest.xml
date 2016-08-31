@@ -3,6 +3,7 @@
     package="com.rdayala.example.newswatch">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".AppNewsWatch"
@@ -32,12 +33,15 @@
         <activity
             android:name=".DesActivity"
             android:label="About us" />
-
-        <activity android:name=".NewsWatchPreferencesActivity"
+        <activity
+            android:name=".NewsWatchPreferencesActivity"
             android:label="Settings" />
 
         <service
             android:name=".service.NotificationService"
+            android:exported="false" />
+        <service
+            android:name=".service.DeleteOldDataService"
             android:exported="false"></service>
     </application>
 

@@ -84,6 +84,8 @@ public class WebViewActivity extends AppCompatActivity {
             webView1 = (WebView) findViewById(R.id.webView1);
             webView1.getSettings().setJavaScriptEnabled(true);
             webView1.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            webView1.getSettings().setTextZoom(110);
+            // webView1.getSettings().setTextSize(WebSettings.TextSize.LARGER);
 
             final Activity activity = this;
 

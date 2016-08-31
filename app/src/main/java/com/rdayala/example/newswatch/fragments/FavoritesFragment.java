@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.rdayala.example.newswatch.ContentActivity;
@@ -16,22 +17,28 @@ import com.rdayala.example.newswatch.R;
 import com.rdayala.example.newswatch.adapter.FavoritesRealmAdapter;
 import com.rdayala.example.newswatch.model.FavoriteNewsItem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by rdayala on 8/22/2016.
  */
 public class FavoritesFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
+    public static final String TAG = "FavoritesFragment";
+
     RecyclerView mRecyclerView;
     LinearLayoutManager mLayoutManager;
     FavoritesRealmAdapter mAdapter;
-    RealmList<FavoriteNewsItem> mResults = null;
+    List<FavoriteNewsItem> mItems = null;
     String savedValue = null;
-    Realm mRealm;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    boolean mDoRefresh = false;
+    private ProgressBar pbar;
 
     public FavoritesFragment() {
         // Required empty public constructor
@@ -40,7 +47,6 @@ public class FavoritesFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
     }
 
     @Override
@@ -49,39 +55,34 @@ public class FavoritesFragment extends Fragment implements SwipeRefreshLayout.On
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_favorites, container, false);
 
-        Log.d("FavoriteNews", "onCreateView called!!");
+        Log.d(TAG, "onCreateView called!!");
 
+        pbar = (ProgressBar)view.findViewById(R.id.favorites_progressbar);
         mRecyclerView = (RecyclerView)view.findViewById(R.id.favorites_news_rv);
         mSwipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.favorites_swipe_refresh_layout);
+        if (mSwipeRefreshLayout != null) {
+            mSwipeRefreshLayout.setColorSchemeColors(R.color.orange, R.color.green, R.color.blue);
+        }
         mSwipeRefreshLayout.setOnRefreshListener(this);
+
         mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mRealm = Realm.getDefaultInstance();
-
         if(savedInstanceState != null) {
             savedValue = savedInstanceState.getString("favoriteNewsState");
-            // mItems = savedInstanceState.getParcelableArrayList("favoriteNews");
+            mItems = savedInstanceState.getParcelableArrayList("favoriteNews");
         }
+
         return view;
+
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d("FavoriteNews", "onActivityCreated called!");
-        if(savedValue == null || mResults == null) {
+        Log.d(TAG, "onActivityCreated called!");
+        if(savedValue == null || mItems == null) {
             loadFavoriteNewsFeeds();
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
-        Log.d("FavoriteNews", "onSaveInstanceState called!");
-        if(mResults != null) {
-            state.putSerializable("favoriteNewsState", "yes");
-            // state.putParcelableArrayList("favoriteNews", new ArrayList<>(mItems));
         }
     }
 
@@ -90,65 +91,90 @@ public class FavoritesFragment extends Fragment implements SwipeRefreshLayout.On
      */
     @Override
     public void onRefresh() {
-        ((ContentActivity)getContext()).getSupportActionBar().setTitle("Favorites");
+        mDoRefresh = true;
+        loadFavoriteNewsFeeds();
+    }
+
+    public void refresh() {
         loadFavoriteNewsFeeds();
     }
 
     @Override
+
+    public void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        Log.d(TAG, "onSaveInstanceState called!");
+        if(mItems != null) {
+            state.putSerializable("favoriteNewsState", "yes");
+            state.putParcelableArrayList("favoriteNews", new ArrayList<>(mItems));
+        }
+
+    }
+
+    @Override
     public void onResume() {
+
         super.onResume();
+
         if(savedValue != null) {
-            Log.d("FavoriteNews", "onResume saved state is available!!");
+            Log.d(TAG, "onResume saved state is available!!");
             updateData();
         }
     }
 
     public void updateData() {
-        mAdapter = new FavoritesRealmAdapter(getContext(), mRealm, mResults);
-        mRecyclerView.setAdapter(mAdapter);
-        ((ContentActivity)getActivity()).setFavAdapter(mAdapter);
-        ((ContentActivity)getActivity()).setRealmData(mResults);
-        if(mResults == null || mResults.size() == 0) {
-            Toast.makeText(getContext(), "You haven't Bookmarked any item.", Toast.LENGTH_LONG).show();
+
+        if(savedValue == null || mItems == null || mDoRefresh) {
+            Realm realm = Realm.getDefaultInstance();
+            RealmResults<FavoriteNewsItem> results = realm.where(FavoriteNewsItem.class).equalTo("isAddedFavorite", true).findAll();
+            results = results.sort("mDateAdded", Sort.DESCENDING);
+            if (results.size() > 0) {
+                mItems = new ArrayList<FavoriteNewsItem>();
+                for (FavoriteNewsItem item : results) {
+                    FavoriteNewsItem favoriteNewsItem = new FavoriteNewsItem();
+                    favoriteNewsItem.setMtitle(item.getMtitle());
+                    favoriteNewsItem.setMlink(item.getMlink());
+                    favoriteNewsItem.setMdescription(item.getMdescription());
+                    favoriteNewsItem.setMpubDate(item.getMpubDate());
+                    favoriteNewsItem.setmTags(item.getmTags());
+                    favoriteNewsItem.setmCategory(item.getmCategory());
+                    favoriteNewsItem.setmDateAdded(item.getmDateAdded());
+                    favoriteNewsItem.setAddedFavorite(item.isAddedFavorite());
+
+                    mItems.add(favoriteNewsItem);
+                }
+            }
+            realm.close();
+        }
+
+        if (mDoRefresh) {
+            // stopping swipe refresh
+            mSwipeRefreshLayout.setRefreshing(false);
+            mDoRefresh = false;
         }
         else {
-            Toast.makeText(getContext(), "Loaded Bookmarks : " + mResults.size(), Toast.LENGTH_LONG).show();
+            pbar.setVisibility(View.GONE);
+        }
+
+        if(mItems != null) {
+
+            mAdapter = new FavoritesRealmAdapter(getContext(), mItems);
+            mRecyclerView.setAdapter(mAdapter);
+            ((ContentActivity)getContext()).setRealmData(mItems);
+            ((ContentActivity)getContext()).setFavAdapter(mAdapter);
+        } else
+        {
+            Toast.makeText(getContext(), "You haven't added any Bookmarks!!", Toast.LENGTH_SHORT).show();
         }
     }
 
     public void loadFavoriteNewsFeeds() {
-        // showing refresh animation before making http call
-        mSwipeRefreshLayout.setRefreshing(true);
 
-        RealmResults<FavoriteNewsItem> results = mRealm.where(FavoriteNewsItem.class).findAll();
-        if(results != null) {
-            mResults = convertResultToList(results);
-        }
-        if(mResults != null) {
-            updateData();
+        if (mDoRefresh) {
+            // showing refresh animation before making http call
+            mSwipeRefreshLayout.setRefreshing(true);
         }
 
-        // stopping swipe refresh
-        mSwipeRefreshLayout.setRefreshing(false);
-    }
-
-    public RealmList<FavoriteNewsItem> convertResultToList(RealmResults<FavoriteNewsItem> realmResultsList){
-
-        RealmList <FavoriteNewsItem> results = new RealmList<FavoriteNewsItem>();
-        for(FavoriteNewsItem favoriteNewsItem : realmResultsList){
-            results.add(copy(favoriteNewsItem));
-        }
-        return results;
-    }
-
-    private FavoriteNewsItem copy(FavoriteNewsItem favItem){
-        FavoriteNewsItem o = new FavoriteNewsItem();
-
-        o.setMtitle(favItem.getMtitle());
-        o.setMlink(favItem.getMlink());
-        o.setMdescription(favItem.getMdescription());
-        o.setMpubDate(favItem.getMpubDate());
-        o.setmTags(favItem.getmTags());
-        return o;
+        updateData();
     }
 }

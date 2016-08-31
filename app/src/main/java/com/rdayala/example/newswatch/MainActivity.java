@@ -32,7 +32,8 @@ import com.rdayala.example.newswatch.fragments.ScienceTechFragment;
 import com.rdayala.example.newswatch.fragments.SportsFragment;
 import com.rdayala.example.newswatch.fragments.TopNewsFragment;
 import com.rdayala.example.newswatch.fragments.WorldFragment;
-import com.rdayala.example.newswatch.model.FeedItem;
+import com.rdayala.example.newswatch.model.FavoriteNewsItem;
+import com.rdayala.example.newswatch.service.DeleteOldDataService;
 import com.rdayala.example.newswatch.service.NotificationService;
 
 import java.util.ArrayList;
@@ -45,9 +46,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private CustomTabLayout tabLayout;
     private String[] pageTitle = {"Current Affairs", "National", "World", "Economy", "Editorials", "Science & Tech", "Sports"};
     private int tabSelectedPosition = 0;
-    ArrayList<Fragment> fr_list;
-    List<FeedItem> mData;
+    List<FavoriteNewsItem> mData;
     NewsItemAdapter mAdapter;
+    ViewPagerAdapter pagerAdapter;
 
 
     @Override
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setSupportActionBar(toolbar);
 
-        SpannableString s = new SpannableString("News Watch");
+        SpannableString s = new SpannableString("News Diary");
         s.setSpan(new TypefaceSpan("fonts/knowledge-regular-webfont.ttf"), 0, s.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
@@ -99,17 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             applyFontToMenuItem(mi);
         }
 
-        //set viewpager adapter
-        fr_list = new ArrayList<Fragment>();
-        fr_list.add(new TopNewsFragment());
-        fr_list.add(new NationFragment());
-        fr_list.add(new WorldFragment());
-        fr_list.add(new BusinessFragment());
-        fr_list.add(new EditorialsFragment());
-        fr_list.add(new ScienceTechFragment());
-        fr_list.add(new SportsFragment());
-
-        ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), fr_list);
+        pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
 
         //change Tab selection when swipe ViewPager
@@ -119,8 +110,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                String tag = tab.getText().toString();
+
+                for (int i=0; i< pageTitle.length; i++) {
+                    if (pageTitle[i].equals(tag)) {
+                        viewPager.setCurrentItem(i);
+                    }
+                }
                 tabSelectedPosition = tab.getPosition();
-                viewPager.setCurrentItem(tab.getPosition());
+                // viewPager.setCurrentItem(tab.getPosition());
             }
 
             @Override
@@ -134,18 +132,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(this, NotificationService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000, 1200000, pendingIntent );
-    }
+        AlarmManager purgeAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent purgeIntent = new Intent(this, DeleteOldDataService.class);
+        PendingIntent purgePendingIntent = PendingIntent.getService(this, 543, purgeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        purgeAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000, AlarmManager.INTERVAL_DAY, purgePendingIntent );
 
-    public void setData(List<FeedItem> feedData) {
-        this.mData = feedData;
-    }
-
-    public void setAdapter(NewsItemAdapter adapter) {
-        this.mAdapter = adapter;
+        AlarmManager refreshAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent refreshIntent = new Intent(this, NotificationService.class);
+        PendingIntent refreshPendingIntent = PendingIntent.getService(this, 322, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        refreshAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000, AlarmManager.INTERVAL_HALF_HOUR, refreshPendingIntent );
     }
 
     private void applyFontToMenuItem(MenuItem mi) {
@@ -188,12 +183,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent intent = new Intent(this, DesActivity.class);
             intent.putExtra("string", "Go to other Activity by NavigationView item cliked!");
             startActivity(intent);
-        } else if (id == R.id.close) {
-            finish();
+        } else if (id == R.id.check_epw) {
+            Intent webIntent = new Intent(this, WebViewActivity.class);
+            webIntent.putExtra("title", "Economic & Political Weekly");
+            webIntent.putExtra("url", "http://www.epw.in/");
+            startActivity(webIntent);
         }
+//        else if (id == R.id.close) {
+//            finish();
+//        }
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void setData(List<FavoriteNewsItem> feedData) {
+        this.mData = feedData;
+    }
+
+    public void setAdapter(NewsItemAdapter adapter) {
+        this.mAdapter = adapter;
     }
 
     @Override
@@ -225,34 +234,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onQueryTextChange(String newText) {
+
+        Fragment fragment = pagerAdapter.getCurrentFragment();
+
         switch (tabSelectedPosition) {
             case 0:
             case -1:
-                ((TopNewsFragment)fr_list.get(tabSelectedPosition)).setSearchFilterData();
+                ((TopNewsFragment)fragment).setSearchFilterData();
                 break;
             case 1:
-                ((NationFragment)fr_list.get(tabSelectedPosition)).setSearchFilterData();
+                ((NationFragment)fragment).setSearchFilterData();
                 break;
             case 2:
-                ((WorldFragment)fr_list.get(tabSelectedPosition)).setSearchFilterData();
+                ((WorldFragment)fragment).setSearchFilterData();
                 break;
             case 3:
-                ((BusinessFragment)fr_list.get(tabSelectedPosition)).setSearchFilterData();
+                ((BusinessFragment)fragment).setSearchFilterData();
                 break;
             case 4:
-                ((EditorialsFragment)fr_list.get(tabSelectedPosition)).setSearchFilterData();
+                ((EditorialsFragment)fragment).setSearchFilterData();
                 break;
             case 5:
-                ((ScienceTechFragment)fr_list.get(tabSelectedPosition)).setSearchFilterData();
+                ((ScienceTechFragment)fragment).setSearchFilterData();
                 break;
             case 6:
-                ((SportsFragment)fr_list.get(tabSelectedPosition)).setSearchFilterData();
+                ((SportsFragment)fragment).setSearchFilterData();
                 break;
             default:
                 break;
         }
 
-        final List<FeedItem> filteredModelList = filter(mData, newText);
+        final List<FavoriteNewsItem> filteredModelList = filter(mData, newText);
         mAdapter.setFilter(filteredModelList);
         return true;
     }
@@ -262,11 +274,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-    private List<FeedItem> filter(List<FeedItem> feeds, String query) {
+    private List<FavoriteNewsItem> filter(List<FavoriteNewsItem> feeds, String query) {
         query = query.toLowerCase();
 
-        final List<FeedItem> filteredModelList = new ArrayList<>();
-        for (FeedItem item : feeds) {
+        final List<FavoriteNewsItem> filteredModelList = new ArrayList<>();
+        for (FavoriteNewsItem item : feeds) {
             final String title = item.getMtitle().toLowerCase();
             final String description = item.getMdescription().toLowerCase();
             if (title.contains(query) || description.contains(query)) {

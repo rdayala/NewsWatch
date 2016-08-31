@@ -44,6 +44,7 @@ dependencies {
     compile 'org.parceler:parceler-api:1.1.1'
     compile 'com.github.Cutta:TagView:1.2'
     compile 'com.github.halysongoncalves:pugnotification:1.8.1'
+    compile 'com.github.halysongoncalves:pugnotification:1.8.1'
     apt 'org.parceler:parceler:1.1.1'
     compile('com.squareup.retrofit2:converter-simplexml:2.1.0') {
         exclude module: 'stax-api'

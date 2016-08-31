@@ -4,12 +4,12 @@
     <PreferenceCategory android:title="Caching">
 
         <SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="pref_offline_cache"
             android:title="Offline Caching" />
 
         <ListPreference
-            android:defaultValue="1"
+            android:defaultValue="30"
             android:dependency="pref_offline_cache"
             android:entries="@array/offlineCacheArray"
             android:entryValues="@array/offlineCacheValues"
@@ -21,18 +21,18 @@
     <PreferenceCategory android:title="Refresh">
 
         <SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="pref_automatic_refresh"
             android:title="Automatic Refresh" />
 
-        <ListPreference
-            android:defaultValue="1"
-            android:dependency="pref_automatic_refresh"
-            android:entries="@array/refreshInterval"
-            android:entryValues="@array/refreshIntervalValues"
-            android:key="automaticFeedRefresh"
-            android:summary="Refresh interval to sync Data"
-            android:title="Automatic Refresh Interval" />
+        <!--<ListPreference-->
+            <!--android:defaultValue="1"-->
+            <!--android:dependency="pref_automatic_refresh"-->
+            <!--android:entries="@array/refreshInterval"-->
+            <!--android:entryValues="@array/refreshIntervalValues"-->
+            <!--android:key="automaticFeedRefresh"-->
+            <!--android:summary="Refresh interval to sync Data"-->
+            <!--android:title="Automatic Refresh Interval" />-->
     </PreferenceCategory>
 
 </PreferenceScreen>
