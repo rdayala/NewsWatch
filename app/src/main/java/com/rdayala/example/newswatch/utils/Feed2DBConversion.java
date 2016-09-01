@@ -1,14 +1,15 @@
 package com.rdayala.example.newswatch.utils;
 
 import android.text.Html;
+import android.util.Log;
 
 import com.rdayala.example.newswatch.model.FavoriteNewsItem;
 import com.rdayala.example.newswatch.model.FeedItem;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import java.text.ParseException;
 
 /**
  * Created by rdayala on 8/28/2016.
@@ -34,7 +35,11 @@ public class Feed2DBConversion {
         // backend fields, not be shown to user
         favItem.setmCategory(category);
         if(rssFeed.getMpubDate() != null) {
-            favItem.setmDateAdded(getDateFromPubDate(rssFeed.getMpubDate().trim()));
+            if(category.equals("PIBNews")) {
+                favItem.setmDateAdded(getDateFromPubDatePIB(rssFeed.getMpubDate().trim()));
+            } else {
+                favItem.setmDateAdded(getDateFromPubDate(rssFeed.getMpubDate().trim()));
+            }
         }
         else {
             favItem.setmDateAdded(new Date());
@@ -68,6 +73,19 @@ public class Feed2DBConversion {
         try {
             dateObj = f.parse(oldPubDateStr);
         }catch(ParseException e) {
+        }
+
+        return dateObj;
+    }
+
+    public static Date getDateFromPubDatePIB(String oldPubDateStr) {
+        Date dateObj = null;
+        String trimmedString = oldPubDateStr.substring(0, 16);
+        SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy HH:mm"); // 31/08/2016 19:26 IST
+        try {
+            dateObj = f.parse(trimmedString);
+        }catch(ParseException e) {
+            Log.e("DataParseError", e.getMessage());
         }
 
         return dateObj;

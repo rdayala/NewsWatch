@@ -70,11 +70,11 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
         Log.d(TAG, "onCreateView called!!");
 
-        pbar = (ProgressBar)view.findViewById(R.id.nation_progressbar);
-        mRecyclerView = (RecyclerView)view.findViewById(R.id.national_news_rv);
-        connectionStatusText = (TextView)view.findViewById(R.id.national_connection_status);
+        pbar = (ProgressBar) view.findViewById(R.id.nation_progressbar);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.national_news_rv);
+        connectionStatusText = (TextView) view.findViewById(R.id.national_connection_status);
         connectionStatusText.setVisibility(View.GONE);
-        mSwipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.national_swipe_refresh_layout);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.national_swipe_refresh_layout);
         if (mSwipeRefreshLayout != null) {
             mSwipeRefreshLayout.setColorSchemeColors(R.color.orange, R.color.green, R.color.blue);
         }
@@ -83,7 +83,7 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
         mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             savedValue = savedInstanceState.getString("nationalNewsState");
             mItems = savedInstanceState.getParcelableArrayList("nationalNews");
         }
@@ -97,7 +97,7 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
         super.onActivityCreated(savedInstanceState);
         Log.d(TAG, "onActivityCreated called!");
         isConnectedToInternet = NetworkUtils.haveNetworkConnection(getContext());
-        if((savedValue == null || mItems == null )) {
+        if ((savedValue == null || mItems == null)) {
             loadNationalNewsFeeds();
         }
     }
@@ -130,7 +130,7 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
     public void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         Log.d(TAG, "onSaveInstanceState called!");
-        if(mItems != null) {
+        if (mItems != null) {
             state.putSerializable("nationalNewsState", "yes");
             state.putParcelableArrayList("nationalNews", new ArrayList<>(mItems));
         }
@@ -141,9 +141,9 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
     public void onResume() {
 
         super.onResume();
-        if(savedValue != null) {
+        if (savedValue != null) {
             Log.d(TAG, "onResume saved state is available!!");
-            if(!NetworkUtils.haveNetworkConnection(getContext())) {
+            if (!NetworkUtils.haveNetworkConnection(getContext())) {
                 connectionStatusText.setVisibility(View.VISIBLE);
             }
             updateData();
@@ -151,13 +151,13 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
     }
 
     public void setSearchFilterData() {
-        ((MainActivity)getContext()).setAdapter(mAdapter);
-        ((MainActivity)getContext()).setData(mItems);
+        ((MainActivity) getContext()).setAdapter(mAdapter);
+        ((MainActivity) getContext()).setData(mItems);
     }
 
     public void updateData() {
 
-        if(savedValue == null || mItems == null || mDoRefresh) {
+        if (savedValue == null || mItems == null || mDoRefresh) {
             Log.d(TAG, "updateData database query is called!!");
             Realm realm = Realm.getDefaultInstance();
             RealmResults<FavoriteNewsItem> results = realm.where(FavoriteNewsItem.class).equalTo("mCategory", "National").findAll();
@@ -187,8 +187,7 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
             // stopping swipe refresh
             mSwipeRefreshLayout.setRefreshing(false);
             mDoRefresh = false;
-        }
-        else {
+        } else {
             pbar.setVisibility(View.GONE);
         }
         mRecyclerView.setAdapter(mAdapter);
@@ -197,6 +196,17 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
     public void loadNationalNewsFeeds() {
 
         if (isConnectedToInternet) {
+
+            if (!mDoRefresh) {
+                Realm realm = Realm.getDefaultInstance();
+                RealmResults<FavoriteNewsItem> results = realm.where(FavoriteNewsItem.class).equalTo("mCategory", "National").findAll();
+                int numberOfItems = results.size();
+                realm.close();
+                if (numberOfItems > 0) {
+                    updateData();
+                    return;
+                }
+            }
 
             if (mDoRefresh) {
                 // showing refresh animation before making http call
@@ -220,14 +230,29 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
                             FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "National");
 
                             Realm realm = Realm.getDefaultInstance();
-                            realm.beginTransaction();
                             try {
+                                realm.beginTransaction();
                                 realm.copyToRealm(favoriteNewsItem);
+                                realm.commitTransaction();
                             } catch (RealmPrimaryKeyConstraintException ex) {
 
+                                realm.cancelTransaction();
+                                // get an existing object and update it with current details
+                                FavoriteNewsItem dbItem =
+                                        realm.where(FavoriteNewsItem.class).equalTo("mlink", favoriteNewsItem.getMlink()).findFirst();
+                                favoriteNewsItem.setmTags(dbItem.getmTags());
+                                favoriteNewsItem.setAddedFavorite(dbItem.isAddedFavorite());
+
+                                realm.beginTransaction();
+                                realm.copyToRealmOrUpdate(favoriteNewsItem);
+                                realm.commitTransaction();
+
                             }
-                            realm.commitTransaction();
-                            realm.close();
+                            finally {
+                                if(realm != null) {
+                                    realm.close();
+                                }
+                            }
 
                             Log.d(TAG, "Item : " + favoriteNewsItem.getMtitle() + ", Link: " + favoriteNewsItem.getMlink());
                         }
@@ -252,6 +277,7 @@ public class NationFragment extends Fragment implements SwipeRefreshLayout.OnRef
                             "Try again!!", Toast.LENGTH_LONG).show();
                 }
             });
+
         } else {
             connectionStatusText.setVisibility(View.VISIBLE);
             updateData();

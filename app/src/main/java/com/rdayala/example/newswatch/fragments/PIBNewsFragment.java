@@ -185,6 +185,17 @@ public class PIBNewsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         if(isConnectedToInternet) {
 
+            if (!mDoRefresh) {
+                Realm realm = Realm.getDefaultInstance();
+                RealmResults<FavoriteNewsItem> results = realm.where(FavoriteNewsItem.class).equalTo("mCategory", "PIBNews").findAll();
+                int numberOfItems = results.size();
+                realm.close();
+                if (numberOfItems > 0) {
+                    updateData();
+                    return;
+                }
+            }
+
             if (mDoRefresh) {
                 // showing refresh animation before making http call
                 mSwipeRefreshLayout.setRefreshing(true);
@@ -207,14 +218,29 @@ public class PIBNewsFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "PIBNews");
 
                             Realm realm = Realm.getDefaultInstance();
-                            realm.beginTransaction();
                             try {
+                                realm.beginTransaction();
                                 realm.copyToRealm(favoriteNewsItem);
+                                realm.commitTransaction();
                             } catch (RealmPrimaryKeyConstraintException ex) {
 
+                                realm.cancelTransaction();
+                                // get an existing object and update it with current details
+                                FavoriteNewsItem dbItem =
+                                        realm.where(FavoriteNewsItem.class).equalTo("mlink", favoriteNewsItem.getMlink()).findFirst();
+                                favoriteNewsItem.setmTags(dbItem.getmTags());
+                                favoriteNewsItem.setAddedFavorite(dbItem.isAddedFavorite());
+
+                                realm.beginTransaction();
+                                realm.copyToRealmOrUpdate(favoriteNewsItem);
+                                realm.commitTransaction();
+
                             }
-                            realm.commitTransaction();
-                            realm.close();
+                            finally {
+                                if(realm != null) {
+                                    realm.close();
+                                }
+                            }
 
                             Log.d(TAG, "Item : " + favoriteNewsItem.getMtitle() + ", Link: " + favoriteNewsItem.getMlink());
                         }

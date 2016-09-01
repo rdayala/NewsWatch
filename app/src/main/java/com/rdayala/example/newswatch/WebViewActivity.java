@@ -33,8 +33,8 @@ public class WebViewActivity extends AppCompatActivity {
 
     private WebView webView1;
     private Toolbar toolbar;
-    private String title;
-    private String url;
+    private String title = null;
+    private String url = null;
 
     Intent intent;
 
@@ -43,12 +43,10 @@ public class WebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
 
-        intent = getIntent();
-        //  this.getWindow().requestFeature(Window.FEATURE_PROGRESS);
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        intent = getIntent();
         title = getIntent().getExtras().getString("title");
         url = getIntent().getExtras().getString("url");
 
@@ -59,7 +57,7 @@ public class WebViewActivity extends AppCompatActivity {
         TextView textview = new TextView(WebViewActivity.this);
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                                                        getSupportActionBar().getHeight());
+                getSupportActionBar().getHeight());
         textview.setLayoutParams(layoutParams);
 
         textview.setMaxLines(1);
@@ -131,7 +129,7 @@ public class WebViewActivity extends AppCompatActivity {
         ShareActionProvider myShareActionProvider =
                 (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
 
-        Intent myShareIntent  = new Intent();
+        Intent myShareIntent = new Intent();
         myShareIntent.setAction(Intent.ACTION_SEND);
         myShareIntent.setType("text/plain");
         myShareIntent.putExtra(Intent.EXTRA_TEXT, url);

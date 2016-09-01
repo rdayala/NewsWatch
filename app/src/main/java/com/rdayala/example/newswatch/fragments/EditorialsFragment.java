@@ -217,14 +217,29 @@ public class EditorialsFragment extends Fragment implements SwipeRefreshLayout.O
                             FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "Editorial");
 
                             Realm realm = Realm.getDefaultInstance();
-                            realm.beginTransaction();
                             try {
+                                realm.beginTransaction();
                                 realm.copyToRealm(favoriteNewsItem);
+                                realm.commitTransaction();
                             } catch (RealmPrimaryKeyConstraintException ex) {
 
+                                realm.cancelTransaction();
+                                // get an existing object and update it with current details
+                                FavoriteNewsItem dbItem =
+                                        realm.where(FavoriteNewsItem.class).equalTo("mlink", favoriteNewsItem.getMlink()).findFirst();
+                                favoriteNewsItem.setmTags(dbItem.getmTags());
+                                favoriteNewsItem.setAddedFavorite(dbItem.isAddedFavorite());
+
+                                realm.beginTransaction();
+                                realm.copyToRealmOrUpdate(favoriteNewsItem);
+                                realm.commitTransaction();
+
                             }
-                            realm.commitTransaction();
-                            realm.close();
+                            finally {
+                                if(realm != null) {
+                                    realm.close();
+                                }
+                            }
 
                             Log.d("EditorialNews - Item : ", favoriteNewsItem.getMtitle() + ", Link: " + favoriteNewsItem.getMlink());
                         }

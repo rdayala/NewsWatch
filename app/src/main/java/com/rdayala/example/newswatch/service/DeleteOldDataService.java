@@ -41,7 +41,8 @@ public class DeleteOldDataService extends IntentService {
             Date dateToCompareWith = new Date(System.currentTimeMillis()-(offlineCacheDays*24*60*60*1000));
 
             final RealmResults<FavoriteNewsItem> results =
-                    realm.where(FavoriteNewsItem.class).lessThan("mDateAdded", dateToCompareWith).findAll();
+                    realm.where(FavoriteNewsItem.class).lessThan("mDateAdded", dateToCompareWith)
+                            .findAll().where().notEqualTo("isAddedFavorite", true).findAll();
 
             if(results.size() > 0) {
                 realm.executeTransaction(new Realm.Transaction() {
