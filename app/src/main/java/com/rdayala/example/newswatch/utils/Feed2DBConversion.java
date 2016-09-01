@@ -18,16 +18,24 @@ public class Feed2DBConversion {
 
     public static FavoriteNewsItem convertFeedToDBModelObject(FeedItem rssFeed, String category) {
 
-        String title = rssFeed.getMtitle().trim();
-        String description = rssFeed.getMdescription().trim();
+        String description = null;
         String pubDate = null;
+
+        String title = rssFeed.getMtitle().trim();
+        if(rssFeed.getMdescription() != null) {
+            description = rssFeed.getMdescription().trim();
+        }
         if(rssFeed.getMpubDate() != null) {
             pubDate = getPubDateString(rssFeed.getMpubDate().trim());
         }
 
         FavoriteNewsItem favItem = new FavoriteNewsItem();
         favItem.setMtitle(Html.fromHtml(title).toString().trim());
-        favItem.setMdescription(Html.fromHtml(description).toString().trim());
+        if(description != null) {
+            favItem.setMdescription(Html.fromHtml(description).toString().trim());
+        } else {
+            favItem.setMdescription(description);
+        }
         favItem.setMpubDate(pubDate);
         favItem.setMlink(rssFeed.getMlink());
         // favItem.setmTags(tags);
