@@ -115,6 +115,8 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
                     Intent webIntent = new Intent(v.getContext(), WebViewActivity.class);
                     webIntent.putExtra("title", rssFeed.getMtitle().toString());
                     webIntent.putExtra("url", rssFeed.getMlink().toString());
+                    webIntent.putExtra("defaultTag", rssFeed.getmCategory());
+                    webIntent.putExtra("feedItem", rssFeed);
                     v.getContext().startActivity(webIntent);
                 }
             });
@@ -204,6 +206,10 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
                         String newTagsString = et_Tags.getText().toString().trim();
 
                         if(!oldTagsString.equals(newTagsString)) {
+
+                            if(newTagsString != null && newTagsString.trim().length() == 0) {
+                                newTagsString = rssFeed.getmCategory();
+                            }
 
                             rssFeed.setmTags(newTagsString);
                             rssFeed.setAddedFavorite(true);

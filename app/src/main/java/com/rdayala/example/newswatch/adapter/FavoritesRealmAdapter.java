@@ -133,10 +133,9 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
                 public void onClick(View v) {
 
                     Intent webIntent = new Intent(v.getContext(), WebViewActivity.class);
-
-                    webIntent.putExtra("title", favoriteNewsItem.getMtitle().toString());
-
-                    webIntent.putExtra("url", favoriteNewsItem.getMlink().toString());
+                    webIntent.putExtra("title", favoriteNewsItem.getMtitle());
+                    webIntent.putExtra("url", favoriteNewsItem.getMlink());
+                    webIntent.putExtra("feedItem", favoriteNewsItem);
 
                     v.getContext().startActivity(webIntent);
                 }
@@ -172,14 +171,6 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
                 realm.beginTransaction();
                 realm.copyToRealmOrUpdate(favItem);
                 realm.commitTransaction();
-
-//                realm.executeTransaction(new Realm.Transaction() {
-//                    @Override
-//                    public void execute(Realm realm) {
-//                        RealmResults<FavoriteNewsItem> result = realm.where(FavoriteNewsItem.class).equalTo("mlink", favItem.getMlink()).findAll();
-//                        result.deleteAllFromRealm();
-//                    }
-//                });
                 realm.close();
 
                 mData.remove(getAdapterPosition());
@@ -192,7 +183,6 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
 
                 AlertDialog.Builder alertDialog;
                 final EditText et_Tags;
-                int item_position;
 
                 alertDialog = new AlertDialog.Builder(mContext);
                 View view = mInflater.inflate(R.layout.dialog_layout,null);
@@ -209,6 +199,10 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
                         String newTagsString = et_Tags.getText().toString().trim();
 
                         if(!oldTagsString.equals(newTagsString)) {
+
+                            if(newTagsString != null && newTagsString.trim().length() == 0) {
+                                newTagsString = favoriteNewsItem.getmCategory();
+                            }
 
                             FavoriteNewsItem favItem = favoriteNewsItem;
                             favItem.setmTags(newTagsString);

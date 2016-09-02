@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--<color name="colorPrimary">#607D8B</color>-->
-    <!--<color name="colorPrimaryDark">#455A64</color>-->
+    <!--<color name="colorPrimary">#3E50B4</color>-->
+    <!--<color name="colorPrimaryDark">#1A237E</color>-->
     <!--<color name="colorAccent">#FF4081</color>-->
 
     <color name="colorPrimary">#CC0000</color>
     <color name="colorPrimaryDark">#990000</color>
-    <color name="colorAccent">#333333</color>
-    <!--<color name="tabBackgroundColor">#0A0A0A</color>-->
-    <color name="tabBackgroundColor">#333333</color>
+    <color name="colorAccent">#474747</color>
+    <color name="tabBackgroundColor">#474747</color>
+
     <color name="tabTitleColor">#E87400</color>
     <color name="navBackgroundColor">#333333</color>
     <color name="cardviewBookmarkBackground">#333333</color>
     <color name="cardviewNormalBackground">#FFFFFF</color>
     <color name="notificationBackground">#777777</color>
+
+    <color name="floatingButtonColor">#FF3F80</color>
 
     <color name="orange">#FF9900</color>
     <color name="green">#009900</color>

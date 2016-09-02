@@ -72,7 +72,7 @@ public class NotificationService extends IntentService {
 
             // NationalNotification Block
 
-            {
+            if(!nationalNotification){
                 // Create a simple REST adapter which points to GitHub’s API
                 FeedDataService service = ServiceGenerator.createService(FeedDataService.class);
 
@@ -116,6 +116,8 @@ public class NotificationService extends IntentService {
                                                 Bundle bundle = new Bundle();
                                                 bundle.putString("title", favoriteNewsItem.getMtitle());
                                                 bundle.putString("url", favoriteNewsItem.getMlink());
+                                                bundle.putString("defaultTag", "National");
+                                                bundle.putParcelable("feedItem", favoriteNewsItem);
 
                                                 int not_nu = generateRandom();
 
@@ -224,9 +226,11 @@ public class NotificationService extends IntentService {
                         Log.e(TAG, "Error fetching repos : " + t.getMessage());
                     }
                 });
+
+                nationalNotification = false;
             }
 
-            if (!nationalNotification) {
+            if (!pibNotification) {
                 // check for PIB News
                 // Create a simple REST adapter which points to GitHub’s API
                 FeedDataService service = ServiceGenerator.createService(FeedDataService.class);
@@ -271,6 +275,8 @@ public class NotificationService extends IntentService {
                                                 Bundle bundle = new Bundle();
                                                 bundle.putString("title", favoriteNewsItem.getMtitle());
                                                 bundle.putString("url", favoriteNewsItem.getMlink());
+                                                bundle.putString("defaultTag", "PIBNews");
+                                                bundle.putParcelable("feedItem", favoriteNewsItem);
 
                                                 int not_nu = generateRandom();
 
@@ -327,7 +333,7 @@ public class NotificationService extends IntentService {
                                     // there are no items in database
                                     // add all feeds to DB
                                     for (FeedItem item : respFeed.getmChannel().getFeedItems()) {
-                                        FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "National");
+                                        FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "PIBNews");
                                         realm = Realm.getDefaultInstance();
                                         try {
                                             realm.beginTransaction();
@@ -380,9 +386,10 @@ public class NotificationService extends IntentService {
                     }
                 });
 
+                pibNotification = false;
             }
 
-            if (!pibNotification) {
+            if (!economyNotification) {
 
                 // check for Business News
                 // Create a simple REST adapter which points to GitHub’s API
@@ -428,6 +435,8 @@ public class NotificationService extends IntentService {
                                                 Bundle bundle = new Bundle();
                                                 bundle.putString("title", favoriteNewsItem.getMtitle());
                                                 bundle.putString("url", favoriteNewsItem.getMlink());
+                                                bundle.putString("defaultTag", "Economy");
+                                                bundle.putParcelable("feedItem", favoriteNewsItem);
 
                                                 int not_nu = generateRandom();
 
@@ -484,7 +493,7 @@ public class NotificationService extends IntentService {
                                     // there are no items in database
                                     // add all feeds to DB
                                     for (FeedItem item : respFeed.getmChannel().getFeedItems()) {
-                                        FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "National");
+                                        FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "Economy");
                                         realm = Realm.getDefaultInstance();
                                         try {
                                             realm.beginTransaction();
@@ -536,9 +545,11 @@ public class NotificationService extends IntentService {
                         Log.e(TAG, "Error fetching repos : " + t.getMessage());
                     }
                 });
+
+                economyNotification = false;
             }
 
-            if (!economyNotification) {
+            if(!worldNotification){
 
                 // check for world news
                 FeedDataService service = ServiceGenerator.createService(FeedDataService.class);
@@ -582,6 +593,8 @@ public class NotificationService extends IntentService {
                                                 Bundle bundle = new Bundle();
                                                 bundle.putString("title", favoriteNewsItem.getMtitle());
                                                 bundle.putString("url", favoriteNewsItem.getMlink());
+                                                bundle.putString("defaultTag", "World");
+                                                bundle.putParcelable("feedItem", favoriteNewsItem);
 
                                                 int not_nu = generateRandom();
 
@@ -638,7 +651,7 @@ public class NotificationService extends IntentService {
                                     // there are no items in database
                                     // add all feeds to DB
                                     for (FeedItem item : respFeed.getmChannel().getFeedItems()) {
-                                        FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "National");
+                                        FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "World");
                                         realm = Realm.getDefaultInstance();
                                         try {
                                             realm.beginTransaction();
@@ -690,6 +703,8 @@ public class NotificationService extends IntentService {
                         Log.e(TAG, "Error fetching repos : " + t.getMessage());
                     }
                 });
+
+                worldNotification = false;
             }
         }
     }

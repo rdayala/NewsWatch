@@ -15,4 +15,5 @@
     <dimen name="news_item_pubdate_padding">8dp</dimen>
     <dimen name="nav_drawer_width">280dp</dimen>
     <dimen name="news_description_size">16sp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 </resources>

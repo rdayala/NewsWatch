@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -24,6 +25,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rdayala.example.newswatch.model.FavoriteNewsItem;
+
+import io.realm.Realm;
+
 /**
  * Created by rdayala on 8/9/2016.
  */
@@ -35,7 +40,9 @@ public class WebViewActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private String title = null;
     private String url = null;
-
+    private FavoriteNewsItem feedItem = null;
+    private FloatingActionButton fab = null;
+    private String mDefaultTag = null;
     Intent intent;
 
     @Override
@@ -49,6 +56,54 @@ public class WebViewActivity extends AppCompatActivity {
         intent = getIntent();
         title = getIntent().getExtras().getString("title");
         url = getIntent().getExtras().getString("url");
+        mDefaultTag = getIntent().getExtras().getString("defaultTag");
+        feedItem = getIntent().getExtras().getParcelable("feedItem");
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        if(feedItem.isAddedFavorite()) {
+            fab.setImageResource(R.drawable.ic_star_white);
+        } else {
+            fab.setImageResource(R.drawable.ic_star_border);
+        }
+
+
+
+        assert fab != null;
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Click action
+
+                if(feedItem.isAddedFavorite()) {
+
+                    // save rssFeed data member to Realm DB
+                    feedItem.setAddedFavorite(false);
+
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    realm.copyToRealmOrUpdate(feedItem);
+                    realm.commitTransaction();
+                    realm.close();
+                    fab.setImageResource(R.drawable.ic_star_border);
+
+                    Toast.makeText(getApplicationContext(), "Removed from Bookmarks!!", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    feedItem.setAddedFavorite(true);
+                    if(feedItem.getmTags() == null) {
+                        feedItem.setmTags(mDefaultTag);
+                    }
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    FavoriteNewsItem favs = realm.copyToRealmOrUpdate(feedItem);
+                    realm.commitTransaction();
+                    realm.close();
+                    Toast.makeText(getApplicationContext(), "Added to Bookmarks!!", Toast.LENGTH_SHORT).show();
+                    fab.setImageResource(R.drawable.ic_star_white);
+                }
+            }
+        });
 
         // Style text views
         Typeface titleTypeFace = Typeface.createFromAsset(getAssets(),
