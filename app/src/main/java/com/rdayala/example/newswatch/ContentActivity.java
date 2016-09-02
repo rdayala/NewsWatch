@@ -215,7 +215,7 @@ public class ContentActivity extends AppCompatActivity implements SearchView.OnQ
         for(FavoriteNewsItem favItem : favorites) {
             final String title = favItem.getMtitle().toLowerCase();
             final String description = favItem.getMdescription().toLowerCase();
-            final String tagsStr = favItem.getmTags();
+            final String tagsStr = favItem.getmTags().toLowerCase();
 
             if(title.contains(query) || description.contains(query) || tagsStr.contains(query)) {
                 filteredModeList.add(favItem);

@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.rdayala.example.newswatch.model.FavoriteNewsItem;
 
@@ -35,24 +36,68 @@ public class DeleteOldDataService extends IntentService {
             realm = Realm.getDefaultInstance();
 
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            int offlineCacheDays = Integer.parseInt(sharedPreferences.getString("offlineCacheDays", "7"));
-            offlineCacheDays = 1;
+            int offlineCacheDays = Integer.parseInt(sharedPreferences.getString("offlineCacheDays", "2"));
 
             Date dateToCompareWith = new Date(System.currentTimeMillis()-(offlineCacheDays*24*60*60*1000));
 
-            final RealmResults<FavoriteNewsItem> results =
+            Log.d(TAG, "Date to compare with : " + dateToCompareWith.toString());
+
+            RealmResults<FavoriteNewsItem> results =
                     realm.where(FavoriteNewsItem.class).lessThan("mDateAdded", dateToCompareWith)
                             .findAll().where().notEqualTo("isAddedFavorite", true).findAll();
+
+            final RealmResults<FavoriteNewsItem> nationalResults =
+                    results.where().equalTo("mCategory", "National").findAll();
 
             if(results.size() > 0) {
                 realm.executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
                         // Delete all matches
-                        results.deleteAllFromRealm();
+                        nationalResults.deleteAllFromRealm();
                     }
                 });
             }
+
+            final RealmResults<FavoriteNewsItem> businessResults =
+                    results.where().equalTo("mCategory", "Economy").findAll();
+
+            if(results.size() > 0) {
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        // Delete all matches
+                        businessResults.deleteAllFromRealm();
+                    }
+                });
+            }
+
+            final RealmResults<FavoriteNewsItem> worldResults =
+                    results.where().equalTo("mCategory", "World").findAll();
+
+            if(results.size() > 0) {
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        // Delete all matches
+                        worldResults.deleteAllFromRealm();
+                    }
+                });
+            }
+
+            final RealmResults<FavoriteNewsItem> sportsResults =
+                    results.where().equalTo("mCategory", "Sports").findAll();
+
+            if(results.size() > 0) {
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        // Delete all matches
+                        sportsResults.deleteAllFromRealm();
+                    }
+                });
+            }
+
         }
         catch(RealmException ex) {
 

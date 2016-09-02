@@ -152,8 +152,8 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
                                         ContextMenu.ContextMenuInfo menuInfo) {
 
             menu.setHeaderTitle("Select The Action");
-            MenuItem myActionItem = menu.add("Remove Bookmark");
-            myActionItem.setOnMenuItemClickListener(this);
+            MenuItem myRemoveActionItem = menu.add("Remove Bookmark");
+            myRemoveActionItem.setOnMenuItemClickListener(this);
             MenuItem myTagActionItem = menu.add("Tags");
             myTagActionItem.setOnMenuItemClickListener(this);
         }

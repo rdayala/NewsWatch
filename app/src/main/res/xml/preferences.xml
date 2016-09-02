@@ -9,7 +9,7 @@
             android:title="Offline Caching" />
 
         <ListPreference
-            android:defaultValue="30"
+            android:defaultValue="2"
             android:dependency="pref_offline_cache"
             android:entries="@array/offlineCacheArray"
             android:entryValues="@array/offlineCacheValues"
@@ -23,6 +23,7 @@
         <SwitchPreference
             android:defaultValue="true"
             android:key="pref_automatic_refresh"
+            android:summary="This will sync feeds every 30 minutes"
             android:title="Automatic Refresh" />
 
         <!--<ListPreference-->
@@ -33,6 +34,15 @@
             <!--android:key="automaticFeedRefresh"-->
             <!--android:summary="Refresh interval to sync Data"-->
             <!--android:title="Automatic Refresh Interval" />-->
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Notifications">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_send_notification"
+            android:summary="Send me notifications on new feeds"
+            android:title="Send notifications" />
     </PreferenceCategory>
 
 </PreferenceScreen>

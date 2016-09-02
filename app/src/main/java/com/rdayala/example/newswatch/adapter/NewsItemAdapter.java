@@ -128,11 +128,20 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
         public void onCreateContextMenu(ContextMenu menu, View v,
                                         ContextMenu.ContextMenuInfo menuInfo) {
 
+            MenuItem myAddAction, myRemoveAction, myTagAction;
             menu.setHeaderTitle("Select The Action");
-            MenuItem myActionItem = menu.add("Bookmark");
-            myActionItem.setOnMenuItemClickListener(this);
-            MenuItem myTagActionItem = menu.add("Tag & Save");
-            myTagActionItem.setOnMenuItemClickListener(this);
+
+            if(!rssFeed.isAddedFavorite()) {
+                myAddAction = menu.add("Bookmark");
+                myAddAction.setOnMenuItemClickListener(this);
+            }
+            else {
+                myRemoveAction = menu.add("Remove Bookmark");
+                myRemoveAction.setOnMenuItemClickListener(this);
+            }
+
+            myTagAction = menu.add("Tag & Save");
+            myTagAction.setOnMenuItemClickListener(this);
         }
 
         @Override
@@ -152,7 +161,21 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
                 realm.close();
 
                 Toast.makeText(mContext, "Added to Bookmarks!!", Toast.LENGTH_SHORT).show();
+                cardView.setCardBackgroundColor(Color.parseColor("#e7fad8"));
 
+            } else if (item.getTitle().equals("Remove Bookmark")) {
+
+                // save rssFeed data member to Realm DB
+                rssFeed.setAddedFavorite(false);
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                realm.copyToRealmOrUpdate(rssFeed);
+                realm.commitTransaction();
+                realm.close();
+
+                Toast.makeText(mContext, "Removed from Bookmarks!!", Toast.LENGTH_SHORT).show();
+                cardView.setCardBackgroundColor(Color.parseColor("#ffffff"));
             }
             else if (item.getTitle().equals("Tag & Save")) {
 
@@ -193,6 +216,7 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
 
                             Toast.makeText(mContext, "Added tags and saved to Bookmarks!!", Toast.LENGTH_LONG).show();
                             dialog.dismiss();
+                            cardView.setCardBackgroundColor(Color.parseColor("#e7fad8"));
 
                         }
                     }
@@ -200,7 +224,6 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
                 alertDialog.show();
             }
 
-            cardView.setCardBackgroundColor(Color.parseColor("#e7fad8"));
             return true;
         }
 

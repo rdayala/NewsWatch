@@ -5,6 +5,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -92,6 +95,10 @@ public class FavoritesFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public void onRefresh() {
         mDoRefresh = true;
+        SpannableString s = new SpannableString("Favorites");
+        s.setSpan(new TypefaceSpan("fonts/Knowledge-Bold.ttf"), 0, s.length(),
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ((ContentActivity)getContext()).getSupportActionBar().setTitle(s);
         loadFavoriteNewsFeeds();
     }
 

@@ -134,13 +134,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         AlarmManager purgeAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent purgeIntent = new Intent(this, DeleteOldDataService.class);
-        PendingIntent purgePendingIntent = PendingIntent.getService(this, 543, purgeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent purgePendingIntent = PendingIntent.getService(this, 543, purgeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         purgeAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000, AlarmManager.INTERVAL_DAY, purgePendingIntent );
 
         AlarmManager refreshAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent refreshIntent = new Intent(this, NotificationService.class);
         PendingIntent refreshPendingIntent = PendingIntent.getService(this, 322, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        refreshAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000, AlarmManager.INTERVAL_HALF_HOUR, refreshPendingIntent );
+        refreshAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, refreshPendingIntent );
     }
 
     private void applyFontToMenuItem(MenuItem mi) {

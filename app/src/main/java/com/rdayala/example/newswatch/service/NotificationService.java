@@ -64,6 +64,7 @@ public class NotificationService extends IntentService {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean autoRefresh = sharedPreferences.getBoolean("pref_automatic_refresh", true);
+        final boolean sendNotifications = sharedPreferences.getBoolean("pref_send_notification", true);
 
         if (autoRefresh) {
 
@@ -111,26 +112,28 @@ public class NotificationService extends IntentService {
                                             Log.d(TAG, "National (old) : " + latestDBItem.getMpubDate() + ",  " + latestDBItem.getMtitle());
                                             Log.d(TAG, "National (new) : " + favoriteNewsItem.getMpubDate() + ",  " + favoriteNewsItem.getMtitle());
 
-                                            Bundle bundle = new Bundle();
-                                            bundle.putString("title", favoriteNewsItem.getMtitle());
-                                            bundle.putString("url", favoriteNewsItem.getMlink());
+                                            if(sendNotifications) {
+                                                Bundle bundle = new Bundle();
+                                                bundle.putString("title", favoriteNewsItem.getMtitle());
+                                                bundle.putString("url", favoriteNewsItem.getMlink());
 
-                                            int not_nu=generateRandom();
+                                                int not_nu = generateRandom();
 
-                                            PugNotification.with(mContext)
-                                                    .load()
-                                                    .identifier(not_nu)
-                                                    .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
-                                                    .message(favoriteNewsItem.getMtitle())
-                                                    .smallIcon(R.drawable.ic_pib_articles)
-                                                    .flags(Notification.DEFAULT_ALL)
-                                                    .autoCancel(true)
-                                                    .color(R.color.colorPrimary)
-                                                    .click(WebViewActivity.class, bundle)
-                                                    .simple()
-                                                    .build();
+                                                PugNotification.with(mContext)
+                                                        .load()
+                                                        .identifier(not_nu)
+                                                        .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
+                                                        .message(favoriteNewsItem.getMtitle())
+                                                        .smallIcon(R.drawable.ic_pib_articles)
+                                                        .flags(Notification.DEFAULT_ALL)
+                                                        .autoCancel(true)
+                                                        .color(R.color.colorPrimary)
+                                                        .click(WebViewActivity.class, bundle)
+                                                        .simple()
+                                                        .build();
 
-                                            nationalNotification = true;
+                                                nationalNotification = true;
+                                            }
 
                                             realm = Realm.getDefaultInstance();
                                             try {
@@ -264,26 +267,28 @@ public class NotificationService extends IntentService {
                                             Log.d(TAG, "PIB (old) : " + latestDBItem.getMpubDate() + ",  " + latestDBItem.getMtitle());
                                             Log.d(TAG, "PIB (new) : " + favoriteNewsItem.getMpubDate() + ",  " + favoriteNewsItem.getMtitle());
 
-                                            Bundle bundle = new Bundle();
-                                            bundle.putString("title", favoriteNewsItem.getMtitle());
-                                            bundle.putString("url", favoriteNewsItem.getMlink());
+                                            if(sendNotifications) {
+                                                Bundle bundle = new Bundle();
+                                                bundle.putString("title", favoriteNewsItem.getMtitle());
+                                                bundle.putString("url", favoriteNewsItem.getMlink());
 
-                                            int not_nu=generateRandom();
+                                                int not_nu = generateRandom();
 
-                                            PugNotification.with(mContext)
-                                                    .load()
-                                                    .identifier(not_nu)
-                                                    .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
-                                                    .message(favoriteNewsItem.getMtitle())
-                                                    .smallIcon(R.drawable.ic_pib_articles)
-                                                    .flags(Notification.DEFAULT_ALL)
-                                                    .autoCancel(true)
-                                                    .color(R.color.colorPrimary)
-                                                    .click(WebViewActivity.class, bundle)
-                                                    .simple()
-                                                    .build();
+                                                PugNotification.with(mContext)
+                                                        .load()
+                                                        .identifier(not_nu)
+                                                        .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
+                                                        .message(favoriteNewsItem.getMtitle())
+                                                        .smallIcon(R.drawable.ic_pib_articles)
+                                                        .flags(Notification.DEFAULT_ALL)
+                                                        .autoCancel(true)
+                                                        .color(R.color.colorPrimary)
+                                                        .click(WebViewActivity.class, bundle)
+                                                        .simple()
+                                                        .build();
 
-                                            pibNotification = true;
+                                                pibNotification = true;
+                                            }
 
                                             realm = Realm.getDefaultInstance();
                                             try {
@@ -419,26 +424,28 @@ public class NotificationService extends IntentService {
                                             Log.d(TAG, "Economy (old) : " + latestDBItem.getMpubDate() + ",  " + latestDBItem.getMtitle());
                                             Log.d(TAG, "Economy (new) : " + favoriteNewsItem.getMpubDate() + ",  " + favoriteNewsItem.getMtitle());
 
-                                            Bundle bundle = new Bundle();
-                                            bundle.putString("title", favoriteNewsItem.getMtitle());
-                                            bundle.putString("url", favoriteNewsItem.getMlink());
+                                            if(sendNotifications) {
+                                                Bundle bundle = new Bundle();
+                                                bundle.putString("title", favoriteNewsItem.getMtitle());
+                                                bundle.putString("url", favoriteNewsItem.getMlink());
 
-                                            int not_nu=generateRandom();
+                                                int not_nu = generateRandom();
 
-                                            PugNotification.with(mContext)
-                                                    .load()
-                                                    .identifier(not_nu)
-                                                    .title("News Diary - Business News")
-                                                    .message(favoriteNewsItem.getMtitle())
-                                                    .smallIcon(R.drawable.ic_pib_articles)
-                                                    .flags(Notification.DEFAULT_ALL)
-                                                    .autoCancel(true)
-                                                    .color(R.color.colorPrimary)
-                                                    .click(WebViewActivity.class, bundle)
-                                                    .simple()
-                                                    .build();
+                                                PugNotification.with(mContext)
+                                                        .load()
+                                                        .identifier(not_nu)
+                                                        .title("News Diary - Business News")
+                                                        .message(favoriteNewsItem.getMtitle())
+                                                        .smallIcon(R.drawable.ic_pib_articles)
+                                                        .flags(Notification.DEFAULT_ALL)
+                                                        .autoCancel(true)
+                                                        .color(R.color.colorPrimary)
+                                                        .click(WebViewActivity.class, bundle)
+                                                        .simple()
+                                                        .build();
 
-                                            economyNotification = true;
+                                                economyNotification = true;
+                                            }
 
                                             realm = Realm.getDefaultInstance();
                                             try {
@@ -571,26 +578,28 @@ public class NotificationService extends IntentService {
                                             Log.d(TAG, "World (old) : " + latestDBItem.getMpubDate() + ",  " + latestDBItem.getMtitle());
                                             Log.d(TAG, "World (new) : " + favoriteNewsItem.getMpubDate() + ",  " + favoriteNewsItem.getMtitle());
 
-                                            Bundle bundle = new Bundle();
-                                            bundle.putString("title", favoriteNewsItem.getMtitle());
-                                            bundle.putString("url", favoriteNewsItem.getMlink());
+                                            if(sendNotifications) {
+                                                Bundle bundle = new Bundle();
+                                                bundle.putString("title", favoriteNewsItem.getMtitle());
+                                                bundle.putString("url", favoriteNewsItem.getMlink());
 
-                                            int not_nu=generateRandom();
+                                                int not_nu = generateRandom();
 
-                                            PugNotification.with(mContext)
-                                                    .load()
-                                                    .identifier(not_nu)
-                                                    .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
-                                                    .message(favoriteNewsItem.getMtitle())
-                                                    .smallIcon(R.drawable.ic_pib_articles)
-                                                    .flags(Notification.DEFAULT_ALL)
-                                                    .autoCancel(true)
-                                                    .color(R.color.colorPrimary)
-                                                    .click(WebViewActivity.class, bundle)
-                                                    .simple()
-                                                    .build();
+                                                PugNotification.with(mContext)
+                                                        .load()
+                                                        .identifier(not_nu)
+                                                        .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
+                                                        .message(favoriteNewsItem.getMtitle())
+                                                        .smallIcon(R.drawable.ic_pib_articles)
+                                                        .flags(Notification.DEFAULT_ALL)
+                                                        .autoCancel(true)
+                                                        .color(R.color.colorPrimary)
+                                                        .click(WebViewActivity.class, bundle)
+                                                        .simple()
+                                                        .build();
 
-                                            worldNotification = true;
+                                                worldNotification = true;
+                                            }
 
                                             realm = Realm.getDefaultInstance();
                                             try {
