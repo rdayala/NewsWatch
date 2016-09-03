@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -61,7 +62,7 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
 
     @Override
     public int getItemCount() {
-        if(mData != null) {
+        if (mData != null) {
             return mData.size();
         } else {
             return 0;
@@ -91,10 +92,10 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            cardView = (CardView)itemView.findViewById(R.id.card_view);
-            title = (TextView)itemView.findViewById(R.id.news_title);
-            pubDate = (TextView)itemView.findViewById(R.id.pubdate);
-            description = (TextView)itemView.findViewById(R.id.description);
+            cardView = (CardView) itemView.findViewById(R.id.card_view);
+            title = (TextView) itemView.findViewById(R.id.news_title);
+            pubDate = (TextView) itemView.findViewById(R.id.pubdate);
+            description = (TextView) itemView.findViewById(R.id.description);
 
             // Style text views
             Typeface titleTypeFace = Typeface.createFromAsset(mContext.getAssets(),
@@ -133,11 +134,10 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
             MenuItem myAddAction, myRemoveAction, myTagAction;
             menu.setHeaderTitle("Select The Action");
 
-            if(!rssFeed.isAddedFavorite()) {
+            if (!rssFeed.isAddedFavorite()) {
                 myAddAction = menu.add("Bookmark");
                 myAddAction.setOnMenuItemClickListener(this);
-            }
-            else {
+            } else {
                 myRemoveAction = menu.add("Remove Bookmark");
                 myRemoveAction.setOnMenuItemClickListener(this);
             }
@@ -149,11 +149,11 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             // Menu Item Clicked!
-            if(item.getTitle().equals("Bookmark")) {
+            if (item.getTitle().equals("Bookmark")) {
                 // TO DO
                 // save rssFeed data member to Realm DB
                 rssFeed.setAddedFavorite(true);
-                if(rssFeed.getmTags() == null) {
+                if (rssFeed.getmTags() == null) {
                     rssFeed.setmTags(mDefaultTag);
                 }
                 Realm realm = Realm.getDefaultInstance();
@@ -178,72 +178,69 @@ public class NewsItemAdapter extends RecyclerView.Adapter<NewsItemAdapter.MyView
 
                 Toast.makeText(mContext, "Removed from Bookmarks!!", Toast.LENGTH_SHORT).show();
                 cardView.setCardBackgroundColor(Color.parseColor("#ffffff"));
-            }
-            else if (item.getTitle().equals("Tag & Save")) {
+            } else if (item.getTitle().equals("Tag & Save")) {
 
-                if(rssFeed.getmTags() == null ) {
-                    rssFeed.setmTags(mDefaultTag);
+                final String oldTagsString;
+
+                if (TextUtils.isEmpty(rssFeed.getmTags())) {
+                    oldTagsString = rssFeed.getmCategory();
+                } else {
+                    oldTagsString = rssFeed.getmTags().toString().trim();
                 }
-
-                final String oldTagsString = rssFeed.getmTags().toString().trim();
 
                 AlertDialog.Builder alertDialog;
                 final EditText et_Tags;
                 int item_position;
 
                 alertDialog = new AlertDialog.Builder(mContext);
-                View view = mInflater.inflate(R.layout.dialog_layout,null);
+                View view = mInflater.inflate(R.layout.dialog_layout, null);
                 alertDialog.setView(view);
 
                 alertDialog.setTitle("Tags");
-                et_Tags = (EditText)view.findViewById(R.id.et_tags);
+                et_Tags = (EditText) view.findViewById(R.id.et_tags);
                 et_Tags.setText(oldTagsString);
 
                 alertDialog.setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
-                        String newTagsString = et_Tags.getText().toString().trim();
-
-                        if(!oldTagsString.equals(newTagsString)) {
-
-                            if(newTagsString != null && newTagsString.trim().length() == 0) {
-                                newTagsString = rssFeed.getmCategory();
-                            }
-
-                            rssFeed.setmTags(newTagsString);
-                            rssFeed.setAddedFavorite(true);
-
-                            Realm realm = Realm.getDefaultInstance();
-                            realm.beginTransaction();
-                            realm.copyToRealmOrUpdate(rssFeed);
-                            realm.commitTransaction();
-                            realm.close();
-
-                            Toast.makeText(mContext, "Added tags and saved to Bookmarks!!", Toast.LENGTH_LONG).show();
-                            dialog.dismiss();
-                            cardView.setCardBackgroundColor(Color.parseColor("#e7fad8"));
-
+                        String newTagsString;
+                        if(TextUtils.isEmpty(et_Tags.getText())) {
+                            newTagsString = rssFeed.getmCategory();
+                        } else {
+                            newTagsString = et_Tags.getText().toString().trim();
                         }
-                    }
-                });
-                alertDialog.show();
-            }
 
-            return true;
+                        rssFeed.setmTags(newTagsString);
+                        rssFeed.setAddedFavorite(true);
+
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        realm.copyToRealmOrUpdate(rssFeed);
+                        realm.commitTransaction();
+                        realm.close();
+
+                        Toast.makeText(mContext, "Added tags and saved to Bookmarks!!", Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                        cardView.setCardBackgroundColor(Color.parseColor("#e7fad8"));
+
+                    }
+            });
+            alertDialog.show();
         }
 
-        public void setData(FavoriteNewsItem feedItem, int position) {
-            this.title.setText(feedItem.getMtitle());
-            this.pubDate.setText(feedItem.getMpubDate());
-            this.description.setText(feedItem.getMdescription());
-            this.rssFeed = feedItem;
-            if(feedItem.isAddedFavorite()) {
-                cardView.setCardBackgroundColor(Color.parseColor("#e7fad8"));
-            }
-            else {
-                cardView.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
-            }
+        return true;
+    }
+
+    public void setData(FavoriteNewsItem feedItem, int position) {
+        this.title.setText(feedItem.getMtitle());
+        this.pubDate.setText(feedItem.getMpubDate());
+        this.description.setText(feedItem.getMdescription());
+        this.rssFeed = feedItem;
+        if (feedItem.isAddedFavorite()) {
+            cardView.setCardBackgroundColor(Color.parseColor("#e7fad8"));
+        } else {
+            cardView.setCardBackgroundColor(Color.parseColor("#FFFFFF"));
         }
     }
+}
 }

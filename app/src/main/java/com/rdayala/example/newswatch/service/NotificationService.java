@@ -112,31 +112,6 @@ public class NotificationService extends IntentService {
                                             Log.d(TAG, "National (old) : " + latestDBItem.getMpubDate() + ",  " + latestDBItem.getMtitle());
                                             Log.d(TAG, "National (new) : " + favoriteNewsItem.getMpubDate() + ",  " + favoriteNewsItem.getMtitle());
 
-                                            if(sendNotifications) {
-                                                Bundle bundle = new Bundle();
-                                                bundle.putString("title", favoriteNewsItem.getMtitle());
-                                                bundle.putString("url", favoriteNewsItem.getMlink());
-                                                bundle.putString("defaultTag", "National");
-                                                bundle.putParcelable("feedItem", favoriteNewsItem);
-
-                                                int not_nu = generateRandom();
-
-                                                PugNotification.with(mContext)
-                                                        .load()
-                                                        .identifier(not_nu)
-                                                        .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
-                                                        .message(favoriteNewsItem.getMtitle())
-                                                        .smallIcon(R.drawable.ic_pib_articles)
-                                                        .flags(Notification.DEFAULT_ALL)
-                                                        .autoCancel(true)
-                                                        .color(R.color.colorPrimary)
-                                                        .click(WebViewActivity.class, bundle)
-                                                        .simple()
-                                                        .build();
-
-                                                nationalNotification = true;
-                                            }
-
                                             realm = Realm.getDefaultInstance();
                                             try {
                                                 realm.beginTransaction();
@@ -145,6 +120,30 @@ public class NotificationService extends IntentService {
                                                     Log.d(TAG, "dbObjected : " + dbObject.getMtitle());
                                                 }
                                                 realm.commitTransaction();
+                                                if(sendNotifications) {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
+                                                    bundle.putString("url", favoriteNewsItem.getMlink());
+                                                    bundle.putString("defaultTag", "National");
+                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
+
+                                                    int not_nu = generateRandom();
+
+                                                    PugNotification.with(mContext)
+                                                            .load()
+                                                            .identifier(not_nu)
+                                                            .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
+                                                            .message(favoriteNewsItem.getMtitle())
+                                                            .smallIcon(R.drawable.ic_pib_articles)
+                                                            .flags(Notification.DEFAULT_ALL)
+                                                            .autoCancel(true)
+                                                            .color(R.color.colorPrimary)
+                                                            .click(WebViewActivity.class, bundle)
+                                                            .simple()
+                                                            .build();
+
+                                                    nationalNotification = true;
+                                                }
                                             } catch (RealmPrimaryKeyConstraintException ex) {
 
                                                 realm.cancelTransaction();
@@ -271,31 +270,6 @@ public class NotificationService extends IntentService {
                                             Log.d(TAG, "PIB (old) : " + latestDBItem.getMpubDate() + ",  " + latestDBItem.getMtitle());
                                             Log.d(TAG, "PIB (new) : " + favoriteNewsItem.getMpubDate() + ",  " + favoriteNewsItem.getMtitle());
 
-                                            if(sendNotifications) {
-                                                Bundle bundle = new Bundle();
-                                                bundle.putString("title", favoriteNewsItem.getMtitle());
-                                                bundle.putString("url", favoriteNewsItem.getMlink());
-                                                bundle.putString("defaultTag", "PIBNews");
-                                                bundle.putParcelable("feedItem", favoriteNewsItem);
-
-                                                int not_nu = generateRandom();
-
-                                                PugNotification.with(mContext)
-                                                        .load()
-                                                        .identifier(not_nu)
-                                                        .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
-                                                        .message(favoriteNewsItem.getMtitle())
-                                                        .smallIcon(R.drawable.ic_pib_articles)
-                                                        .flags(Notification.DEFAULT_ALL)
-                                                        .autoCancel(true)
-                                                        .color(R.color.colorPrimary)
-                                                        .click(WebViewActivity.class, bundle)
-                                                        .simple()
-                                                        .build();
-
-                                                pibNotification = true;
-                                            }
-
                                             realm = Realm.getDefaultInstance();
                                             try {
                                                 realm.beginTransaction();
@@ -304,6 +278,30 @@ public class NotificationService extends IntentService {
                                                     Log.d(TAG, "dbObjected : " + dbObject.getMtitle());
                                                 }
                                                 realm.commitTransaction();
+                                                if(sendNotifications) {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
+                                                    bundle.putString("url", favoriteNewsItem.getMlink());
+                                                    bundle.putString("defaultTag", "PIBNews");
+                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
+
+                                                    int not_nu = generateRandom();
+
+                                                    PugNotification.with(mContext)
+                                                            .load()
+                                                            .identifier(not_nu)
+                                                            .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
+                                                            .message(favoriteNewsItem.getMtitle())
+                                                            .smallIcon(R.drawable.ic_pib_articles)
+                                                            .flags(Notification.DEFAULT_ALL)
+                                                            .autoCancel(true)
+                                                            .color(R.color.colorPrimary)
+                                                            .click(WebViewActivity.class, bundle)
+                                                            .simple()
+                                                            .build();
+
+                                                    pibNotification = true;
+                                                }
                                             } catch (RealmPrimaryKeyConstraintException ex) {
 
                                                 realm.cancelTransaction();
@@ -431,31 +429,6 @@ public class NotificationService extends IntentService {
                                             Log.d(TAG, "Economy (old) : " + latestDBItem.getMpubDate() + ",  " + latestDBItem.getMtitle());
                                             Log.d(TAG, "Economy (new) : " + favoriteNewsItem.getMpubDate() + ",  " + favoriteNewsItem.getMtitle());
 
-                                            if(sendNotifications) {
-                                                Bundle bundle = new Bundle();
-                                                bundle.putString("title", favoriteNewsItem.getMtitle());
-                                                bundle.putString("url", favoriteNewsItem.getMlink());
-                                                bundle.putString("defaultTag", "Economy");
-                                                bundle.putParcelable("feedItem", favoriteNewsItem);
-
-                                                int not_nu = generateRandom();
-
-                                                PugNotification.with(mContext)
-                                                        .load()
-                                                        .identifier(not_nu)
-                                                        .title("News Diary - Business News")
-                                                        .message(favoriteNewsItem.getMtitle())
-                                                        .smallIcon(R.drawable.ic_pib_articles)
-                                                        .flags(Notification.DEFAULT_ALL)
-                                                        .autoCancel(true)
-                                                        .color(R.color.colorPrimary)
-                                                        .click(WebViewActivity.class, bundle)
-                                                        .simple()
-                                                        .build();
-
-                                                economyNotification = true;
-                                            }
-
                                             realm = Realm.getDefaultInstance();
                                             try {
                                                 realm.beginTransaction();
@@ -464,6 +437,30 @@ public class NotificationService extends IntentService {
                                                     Log.d(TAG, "dbObjected : " + dbObject.getMtitle());
                                                 }
                                                 realm.commitTransaction();
+                                                if(sendNotifications) {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
+                                                    bundle.putString("url", favoriteNewsItem.getMlink());
+                                                    bundle.putString("defaultTag", "Economy");
+                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
+
+                                                    int not_nu = generateRandom();
+
+                                                    PugNotification.with(mContext)
+                                                            .load()
+                                                            .identifier(not_nu)
+                                                            .title("News Diary - Business News")
+                                                            .message(favoriteNewsItem.getMtitle())
+                                                            .smallIcon(R.drawable.ic_pib_articles)
+                                                            .flags(Notification.DEFAULT_ALL)
+                                                            .autoCancel(true)
+                                                            .color(R.color.colorPrimary)
+                                                            .click(WebViewActivity.class, bundle)
+                                                            .simple()
+                                                            .build();
+
+                                                    economyNotification = true;
+                                                }
                                             } catch (RealmPrimaryKeyConstraintException ex) {
 
                                                 realm.cancelTransaction();
@@ -589,31 +586,6 @@ public class NotificationService extends IntentService {
                                             Log.d(TAG, "World (old) : " + latestDBItem.getMpubDate() + ",  " + latestDBItem.getMtitle());
                                             Log.d(TAG, "World (new) : " + favoriteNewsItem.getMpubDate() + ",  " + favoriteNewsItem.getMtitle());
 
-                                            if(sendNotifications) {
-                                                Bundle bundle = new Bundle();
-                                                bundle.putString("title", favoriteNewsItem.getMtitle());
-                                                bundle.putString("url", favoriteNewsItem.getMlink());
-                                                bundle.putString("defaultTag", "World");
-                                                bundle.putParcelable("feedItem", favoriteNewsItem);
-
-                                                int not_nu = generateRandom();
-
-                                                PugNotification.with(mContext)
-                                                        .load()
-                                                        .identifier(not_nu)
-                                                        .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
-                                                        .message(favoriteNewsItem.getMtitle())
-                                                        .smallIcon(R.drawable.ic_pib_articles)
-                                                        .flags(Notification.DEFAULT_ALL)
-                                                        .autoCancel(true)
-                                                        .color(R.color.colorPrimary)
-                                                        .click(WebViewActivity.class, bundle)
-                                                        .simple()
-                                                        .build();
-
-                                                worldNotification = true;
-                                            }
-
                                             realm = Realm.getDefaultInstance();
                                             try {
                                                 realm.beginTransaction();
@@ -622,6 +594,30 @@ public class NotificationService extends IntentService {
                                                     Log.d(TAG, "dbObjected : " + dbObject.getMtitle());
                                                 }
                                                 realm.commitTransaction();
+                                                if(sendNotifications) {
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
+                                                    bundle.putString("url", favoriteNewsItem.getMlink());
+                                                    bundle.putString("defaultTag", "World");
+                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
+
+                                                    int not_nu = generateRandom();
+
+                                                    PugNotification.with(mContext)
+                                                            .load()
+                                                            .identifier(not_nu)
+                                                            .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
+                                                            .message(favoriteNewsItem.getMtitle())
+                                                            .smallIcon(R.drawable.ic_pib_articles)
+                                                            .flags(Notification.DEFAULT_ALL)
+                                                            .autoCancel(true)
+                                                            .color(R.color.colorPrimary)
+                                                            .click(WebViewActivity.class, bundle)
+                                                            .simple()
+                                                            .build();
+
+                                                    worldNotification = true;
+                                                }
                                             } catch (RealmPrimaryKeyConstraintException ex) {
 
                                                 realm.cancelTransaction();

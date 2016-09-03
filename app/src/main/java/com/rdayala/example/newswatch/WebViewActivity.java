@@ -1,6 +1,8 @@
 package com.rdayala.example.newswatch;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -9,11 +11,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +25,7 @@ import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +48,9 @@ public class WebViewActivity extends AppCompatActivity {
     private FavoriteNewsItem feedItem = null;
     private FloatingActionButton fab = null;
     private String mDefaultTag = null;
-    Intent intent;
+    private Intent intent;
+    private Context mContext;
+    private LayoutInflater mInflater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +59,8 @@ public class WebViewActivity extends AppCompatActivity {
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        mContext = this;
+        mInflater = LayoutInflater.from(mContext);
 
         intent = getIntent();
         title = getIntent().getExtras().getString("title");
@@ -90,17 +99,52 @@ public class WebViewActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Removed from Bookmarks!!", Toast.LENGTH_SHORT).show();
                 } else {
 
-                    feedItem.setAddedFavorite(true);
-                    if(feedItem.getmTags() == null) {
-                        feedItem.setmTags(mDefaultTag);
+                    // add to book marks
+                    final String oldTagsString;
+
+                    if (TextUtils.isEmpty(feedItem.getmTags())) {
+                        oldTagsString = feedItem.getmCategory();
+                    } else {
+                        oldTagsString = feedItem.getmTags().toString().trim();
                     }
-                    Realm realm = Realm.getDefaultInstance();
-                    realm.beginTransaction();
-                    FavoriteNewsItem favs = realm.copyToRealmOrUpdate(feedItem);
-                    realm.commitTransaction();
-                    realm.close();
-                    Toast.makeText(getApplicationContext(), "Added to Bookmarks!!", Toast.LENGTH_SHORT).show();
-                    fab.setImageResource(R.drawable.ic_star_white);
+
+                    AlertDialog.Builder alertDialog;
+                    final EditText et_Tags;
+
+                    alertDialog = new AlertDialog.Builder(mContext);
+                    View tagView = mInflater.inflate(R.layout.dialog_layout, null);
+                    alertDialog.setView(tagView);
+
+                    alertDialog.setTitle("Tags");
+                    et_Tags = (EditText) tagView.findViewById(R.id.et_tags);
+                    et_Tags.setText(oldTagsString);
+
+                    alertDialog.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String newTagsString;
+                            if(TextUtils.isEmpty(et_Tags.getText())) {
+                                newTagsString = feedItem.getmCategory();
+                            } else {
+                                newTagsString = et_Tags.getText().toString().trim();
+                            }
+
+                            feedItem.setmTags(newTagsString);
+                            feedItem.setAddedFavorite(true);
+
+                            Realm realm = Realm.getDefaultInstance();
+                            realm.beginTransaction();
+                            realm.copyToRealmOrUpdate(feedItem);
+                            realm.commitTransaction();
+                            realm.close();
+
+                            Toast.makeText(mContext, "Added tags and saved to Bookmarks!!", Toast.LENGTH_LONG).show();
+                            dialog.dismiss();
+                            fab.setImageResource(R.drawable.ic_star_white);
+
+                        }
+                    });
+                    alertDialog.show();
                 }
             }
         });

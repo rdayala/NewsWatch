@@ -97,20 +97,19 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
                 public void onTagClick(Tag tag, int position) {
 
                     List<FavoriteNewsItem> filteredList =
-                            ((ContentActivity)mContext).favoritesTagFilter(mFavoritesData, tag.text);
+                            ((ContentActivity) mContext).favoritesTagFilter(mFavoritesData, tag.text);
 
                     SpannableString s = new SpannableString("Favorites : " + tag.text);
                     s.setSpan(new TypefaceSpan("fonts/Knowledge-Bold.ttf"), 0, s.length(),
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    ((ContentActivity)mContext).getSupportActionBar().setTitle(s);
+                    ((ContentActivity) mContext).getSupportActionBar().setTitle(s);
 
                     mData = filteredList;
                     notifyDataSetChanged();
                     int numberOfArticles = filteredList.size();
-                    if(numberOfArticles == 1) {
+                    if (numberOfArticles == 1) {
                         Toast.makeText(mContext, "Found " + numberOfArticles + " article.", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
+                    } else {
                         Toast.makeText(mContext, "Found " + numberOfArticles + " articles.", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -176,52 +175,56 @@ public class FavoritesRealmAdapter extends RecyclerView.Adapter<FavoritesRealmAd
                 mData.remove(getAdapterPosition());
                 notifyDataSetChanged();
 
-            }
-            else if (item.getTitle().equals("Tags")) {
+            } else if (item.getTitle().equals("Tags")) {
 
-                final String oldTagsString = favoriteNewsItem.getmTags().trim();
+                final String oldTagsString;
+
+                if (TextUtils.isEmpty(favoriteNewsItem.getmTags())) {
+                    oldTagsString = favoriteNewsItem.getmCategory();
+                } else {
+                    oldTagsString = favoriteNewsItem.getmTags().toString().trim();
+                }
 
                 AlertDialog.Builder alertDialog;
                 final EditText et_Tags;
 
                 alertDialog = new AlertDialog.Builder(mContext);
-                View view = mInflater.inflate(R.layout.dialog_layout,null);
+                View view = mInflater.inflate(R.layout.dialog_layout, null);
                 alertDialog.setView(view);
 
                 alertDialog.setTitle("Tags");
-                et_Tags = (EditText)view.findViewById(R.id.et_tags);
+                et_Tags = (EditText) view.findViewById(R.id.et_tags);
                 et_Tags.setText(oldTagsString);
 
                 alertDialog.setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        String newTagsString = et_Tags.getText().toString().trim();
-
-                        if(!oldTagsString.equals(newTagsString)) {
-
-                            if(newTagsString != null && newTagsString.trim().length() == 0) {
-                                newTagsString = favoriteNewsItem.getmCategory();
-                            }
-
-                            FavoriteNewsItem favItem = favoriteNewsItem;
-                            favItem.setmTags(newTagsString);
-
-                            Realm realm = Realm.getDefaultInstance();
-                            realm.beginTransaction();
-                            realm.copyToRealmOrUpdate(favItem);
-                            realm.commitTransaction();
-                            realm.close();
-
-                            notifyDataSetChanged();
-                            dialog.dismiss();
-
+                        String newTagsString;
+                        if(TextUtils.isEmpty(et_Tags.getText())) {
+                            newTagsString = favoriteNewsItem.getmCategory();
+                        } else {
+                            newTagsString = et_Tags.getText().toString().trim();
                         }
+
+                        FavoriteNewsItem favItem = favoriteNewsItem;
+                        favItem.setmTags(newTagsString);
+
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        realm.copyToRealmOrUpdate(favItem);
+                        realm.commitTransaction();
+                        realm.close();
+
+                        notifyDataSetChanged();
+                        dialog.dismiss();
+
                     }
                 });
 
                 alertDialog.show();
             }
+
             return true;
         }
 
