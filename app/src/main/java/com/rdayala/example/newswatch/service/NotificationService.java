@@ -556,7 +556,7 @@ public class NotificationService extends IntentService {
                                                 .flags(Notification.DEFAULT_ALL)
                                                 .autoCancel(true)
                                                 .color(R.color.colorPrimary)
-                                                .click(MainActivity.class)
+                                                .click(MainActivity.class, bundle)
                                                 .simple()
                                                 .build();
                                     }
@@ -751,11 +751,10 @@ public class NotificationService extends IntentService {
                                                 .flags(Notification.DEFAULT_ALL)
                                                 .autoCancel(true)
                                                 .color(R.color.colorPrimary)
-                                                .click(MainActivity.class)
+                                                .click(MainActivity.class, bundle)
                                                 .simple()
                                                 .build();
                                     }
-
 
                                 } else {
 
