@@ -141,6 +141,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent refreshIntent = new Intent(this, NotificationService.class);
         PendingIntent refreshPendingIntent = PendingIntent.getService(this, 322, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         refreshAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, refreshPendingIntent );
+
+        Intent intent = getIntent();
+        int tabPositionToOpen = 0;
+        if(intent != null) {
+            Bundle bundle = intent.getExtras();
+            if(bundle != null) {
+                tabPositionToOpen = bundle.getInt("tabPositionToOpen");
+                viewPager.setCurrentItem(tabPositionToOpen);
+            }
+        }
     }
 
     private void applyFontToMenuItem(MenuItem mi) {

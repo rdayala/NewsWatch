@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.rdayala.example.newswatch.MainActivity;
 import com.rdayala.example.newswatch.R;
 import com.rdayala.example.newswatch.WebViewActivity;
 import com.rdayala.example.newswatch.model.FavoriteNewsItem;
@@ -16,6 +17,7 @@ import com.rdayala.example.newswatch.model.Feed;
 import com.rdayala.example.newswatch.model.FeedItem;
 import com.rdayala.example.newswatch.utils.Feed2DBConversion;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import br.com.goncalves.pugnotification.notification.PugNotification;
@@ -76,7 +78,7 @@ public class NotificationService extends IntentService {
                 // Create a simple REST adapter which points to GitHub’s API
                 FeedDataService service = ServiceGenerator.createService(FeedDataService.class);
 
-                Call<Feed> call = service.getItems("thehindu/FFST"); // National News
+                Call<Feed> call = service.getItems("thehindu/FFST"); // National News dnaindia/Jajk
 
                 call.enqueue(new Callback<Feed>() {
                     @Override
@@ -103,6 +105,10 @@ public class NotificationService extends IntentService {
                                 realm.close();
 
                                 if (latestDBItem != null) {
+
+                                    ArrayList<String> inboxStyleLinesList = new ArrayList<>();
+                                    int newFeedsCounter = 0;
+
                                     for (FeedItem item : respFeed.getmChannel().getFeedItems()) {
 
                                         FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "National");
@@ -121,28 +127,30 @@ public class NotificationService extends IntentService {
                                                 }
                                                 realm.commitTransaction();
                                                 if(sendNotifications) {
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
-                                                    bundle.putString("url", favoriteNewsItem.getMlink());
-                                                    bundle.putString("defaultTag", "National");
-                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
 
-                                                    int not_nu = generateRandom();
+                                                    inboxStyleLinesList.add(favoriteNewsItem.getMtitle());
+                                                    newFeedsCounter++;
 
-                                                    PugNotification.with(mContext)
-                                                            .load()
-                                                            .identifier(not_nu)
-                                                            .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
-                                                            .message(favoriteNewsItem.getMtitle())
-                                                            .smallIcon(R.drawable.ic_pib_articles)
-                                                            .flags(Notification.DEFAULT_ALL)
-                                                            .autoCancel(true)
-                                                            .color(R.color.colorPrimary)
-                                                            .click(WebViewActivity.class, bundle)
-                                                            .simple()
-                                                            .build();
-
-                                                    nationalNotification = true;
+//                                                    Bundle bundle = new Bundle();
+//                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
+//                                                    bundle.putString("url", favoriteNewsItem.getMlink());
+//                                                    bundle.putString("defaultTag", "National");
+//                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
+//
+//                                                    int not_nu = generateRandom();
+//
+//                                                    PugNotification.with(mContext)
+//                                                            .load()
+//                                                            .identifier(not_nu)
+//                                                            .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
+//                                                            .message(favoriteNewsItem.getMtitle())
+//                                                            .smallIcon(R.drawable.ic_pib_articles)
+//                                                            .flags(Notification.DEFAULT_ALL)
+//                                                            .autoCancel(true)
+//                                                            .color(R.color.colorPrimary)
+//                                                            .click(WebViewActivity.class, bundle)
+//                                                            .simple()
+//                                                            .build();
                                                 }
                                             } catch (RealmPrimaryKeyConstraintException ex) {
 
@@ -168,6 +176,36 @@ public class NotificationService extends IntentService {
                                             }
                                         }
                                     }
+
+                                    if(sendNotifications && newFeedsCounter > 0) {
+                                        int not_nu = generateRandom();
+
+                                        String summaryStr;
+
+                                        if(newFeedsCounter == 1) {
+                                            summaryStr = "You have " + newFeedsCounter + " story to follow. Touch here to open App!!";
+                                        } else {
+                                            summaryStr = "You have " + newFeedsCounter + " stories to follow. Touch here to open App!!";
+                                        }
+
+                                        Bundle bundle = new Bundle();
+                                        bundle.putInt("tabPositionToOpen", 1);
+
+                                        PugNotification.with(mContext)
+                                                .load()
+                                                .identifier(not_nu)
+                                                .title("News Diary - National News")
+                                                .message(summaryStr)
+                                                .inboxStyle(inboxStyleLinesList.toArray(new String[0]), "News Diary - National News", summaryStr)
+                                                .smallIcon(R.drawable.ic_pib_articles)
+                                                .flags(Notification.DEFAULT_ALL)
+                                                .autoCancel(true)
+                                                .color(R.color.colorPrimary)
+                                                .click(MainActivity.class, bundle)
+                                                .simple()
+                                                .build();
+                                    }
+
                                 } else {
 
                                     // there are no items in database
@@ -420,6 +458,10 @@ public class NotificationService extends IntentService {
                                 realm.close();
 
                                 if (latestDBItem != null) {
+
+                                    ArrayList<String> inboxStyleLinesList = new ArrayList<>();
+                                    int newFeedsCounter = 0;
+
                                     for (FeedItem item : respFeed.getmChannel().getFeedItems()) {
 
                                         FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "Economy");
@@ -438,28 +480,32 @@ public class NotificationService extends IntentService {
                                                 }
                                                 realm.commitTransaction();
                                                 if(sendNotifications) {
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
-                                                    bundle.putString("url", favoriteNewsItem.getMlink());
-                                                    bundle.putString("defaultTag", "Economy");
-                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
 
-                                                    int not_nu = generateRandom();
+                                                    inboxStyleLinesList.add(favoriteNewsItem.getMtitle());
+                                                    newFeedsCounter++;
 
-                                                    PugNotification.with(mContext)
-                                                            .load()
-                                                            .identifier(not_nu)
-                                                            .title("News Diary - Business News")
-                                                            .message(favoriteNewsItem.getMtitle())
-                                                            .smallIcon(R.drawable.ic_pib_articles)
-                                                            .flags(Notification.DEFAULT_ALL)
-                                                            .autoCancel(true)
-                                                            .color(R.color.colorPrimary)
-                                                            .click(WebViewActivity.class, bundle)
-                                                            .simple()
-                                                            .build();
-
-                                                    economyNotification = true;
+//                                                    Bundle bundle = new Bundle();
+//                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
+//                                                    bundle.putString("url", favoriteNewsItem.getMlink());
+//                                                    bundle.putString("defaultTag", "Economy");
+//                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
+//
+//                                                    int not_nu = generateRandom();
+//
+//                                                    PugNotification.with(mContext)
+//                                                            .load()
+//                                                            .identifier(not_nu)
+//                                                            .title("News Diary - Business News")
+//                                                            .message(favoriteNewsItem.getMtitle())
+//                                                            .smallIcon(R.drawable.ic_pib_articles)
+//                                                            .flags(Notification.DEFAULT_ALL)
+//                                                            .autoCancel(true)
+//                                                            .color(R.color.colorPrimary)
+//                                                            .click(WebViewActivity.class, bundle)
+//                                                            .simple()
+//                                                            .build();
+//
+//                                                    economyNotification = true;
                                                 }
                                             } catch (RealmPrimaryKeyConstraintException ex) {
 
@@ -485,6 +531,36 @@ public class NotificationService extends IntentService {
                                             }
                                         }
                                     }
+
+                                    if(sendNotifications && newFeedsCounter > 0) {
+                                        int not_nu = generateRandom();
+
+                                        String summaryStr;
+
+                                        if(newFeedsCounter == 1) {
+                                            summaryStr = "You have " + newFeedsCounter + " story to follow. Touch to open App!!";
+                                        } else {
+                                            summaryStr = "You have " + newFeedsCounter + " stories to follow. Touch to open App!!";
+                                        }
+
+                                        Bundle bundle = new Bundle();
+                                        bundle.putInt("tabPositionToOpen", 3);
+
+                                        PugNotification.with(mContext)
+                                                .load()
+                                                .identifier(not_nu)
+                                                .title("News Diary - Business News")
+                                                .message(summaryStr)
+                                                .inboxStyle(inboxStyleLinesList.toArray(new String[0]), "News Diary - Business News", summaryStr)
+                                                .smallIcon(R.drawable.ic_pib_articles)
+                                                .flags(Notification.DEFAULT_ALL)
+                                                .autoCancel(true)
+                                                .color(R.color.colorPrimary)
+                                                .click(MainActivity.class)
+                                                .simple()
+                                                .build();
+                                    }
+
                                 } else {
 
                                     // there are no items in database
@@ -578,6 +654,10 @@ public class NotificationService extends IntentService {
                                 realm.close();
 
                                 if (latestDBItem != null) {
+
+                                    ArrayList<String> inboxStyleLinesList = new ArrayList<>();
+                                    int newFeedsCounter = 0;
+
                                     for (FeedItem item : respFeed.getmChannel().getFeedItems()) {
 
                                         FavoriteNewsItem favoriteNewsItem = Feed2DBConversion.convertFeedToDBModelObject(item, "World");
@@ -595,28 +675,32 @@ public class NotificationService extends IntentService {
                                                 }
                                                 realm.commitTransaction();
                                                 if(sendNotifications) {
-                                                    Bundle bundle = new Bundle();
-                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
-                                                    bundle.putString("url", favoriteNewsItem.getMlink());
-                                                    bundle.putString("defaultTag", "World");
-                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
 
-                                                    int not_nu = generateRandom();
+                                                    inboxStyleLinesList.add(favoriteNewsItem.getMtitle());
+                                                    newFeedsCounter++;
 
-                                                    PugNotification.with(mContext)
-                                                            .load()
-                                                            .identifier(not_nu)
-                                                            .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
-                                                            .message(favoriteNewsItem.getMtitle())
-                                                            .smallIcon(R.drawable.ic_pib_articles)
-                                                            .flags(Notification.DEFAULT_ALL)
-                                                            .autoCancel(true)
-                                                            .color(R.color.colorPrimary)
-                                                            .click(WebViewActivity.class, bundle)
-                                                            .simple()
-                                                            .build();
-
-                                                    worldNotification = true;
+//                                                    Bundle bundle = new Bundle();
+//                                                    bundle.putString("title", favoriteNewsItem.getMtitle());
+//                                                    bundle.putString("url", favoriteNewsItem.getMlink());
+//                                                    bundle.putString("defaultTag", "World");
+//                                                    bundle.putParcelable("feedItem", favoriteNewsItem);
+//
+//                                                    int not_nu = generateRandom();
+//
+//                                                    PugNotification.with(mContext)
+//                                                            .load()
+//                                                            .identifier(not_nu)
+//                                                            .title("News Diary - " + favoriteNewsItem.getmCategory() + " News")
+//                                                            .message(favoriteNewsItem.getMtitle())
+//                                                            .smallIcon(R.drawable.ic_pib_articles)
+//                                                            .flags(Notification.DEFAULT_ALL)
+//                                                            .autoCancel(true)
+//                                                            .color(R.color.colorPrimary)
+//                                                            .click(WebViewActivity.class, bundle)
+//                                                            .simple()
+//                                                            .build();
+//
+//                                                    worldNotification = true;
                                                 }
                                             } catch (RealmPrimaryKeyConstraintException ex) {
 
@@ -642,6 +726,37 @@ public class NotificationService extends IntentService {
                                             }
                                         }
                                     }
+
+                                    if(sendNotifications && newFeedsCounter > 0) {
+                                        int not_nu = generateRandom();
+
+                                        String summaryStr;
+
+                                        if(newFeedsCounter == 1) {
+                                            summaryStr = "You have " + newFeedsCounter + " story to follow. Touch to open App!!";
+                                        } else {
+                                            summaryStr = "You have " + newFeedsCounter + " stories to follow. Touch to open App!!";
+                                        }
+
+                                        Bundle bundle = new Bundle();
+                                        bundle.putInt("tabPositionToOpen", 2);
+
+                                        PugNotification.with(mContext)
+                                                .load()
+                                                .identifier(not_nu)
+                                                .title("News Diary - World News")
+                                                .message(summaryStr)
+                                                .inboxStyle(inboxStyleLinesList.toArray(new String[0]), "News Diary - World News", summaryStr)
+                                                .smallIcon(R.drawable.ic_pib_articles)
+                                                .flags(Notification.DEFAULT_ALL)
+                                                .autoCancel(true)
+                                                .color(R.color.colorPrimary)
+                                                .click(MainActivity.class)
+                                                .simple()
+                                                .build();
+                                    }
+
+
                                 } else {
 
                                     // there are no items in database
